@@ -11,6 +11,11 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* colors */
+  --light-blue: #a7e6ff ;
+  --azure-blue: #3572ef;
+  --dark-blue: #050c9c;
 }
 
 a {
@@ -35,6 +40,11 @@ h1 {
   line-height: 1.1;
 }
 
+h2 {
+  font-weight: 300;
+  color: var(--light-blue);
+}
+
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -42,16 +52,55 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--azure-blue);
   cursor: pointer;
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: #ffff;
 }
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+.button-green {
+  background-color: var(#11f577);
+}
+
+input {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: var(--azure-blue);
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--dark-blue);
+  border-radius: 10px;
+  padding: 2rem;
+  max-width: 400px;
+  margin: 0 auto;              /* Center the component on the page */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 1);
+}
+
+.button-container {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.button-container button {
+  margin: 0 1rem;
+  width: 100px;
 }
 
 @media (prefers-color-scheme: light) {
