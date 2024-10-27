@@ -27,7 +27,7 @@ const LoginPage = () => {
       
       <div className="w-full max-w-md p-8 bg-darkBlue rounded-lg shadow-lg text-center space-y-6">
         <h2 className="text-2xl">Welcome!</h2>
-        <div className="w-full mb-4">
+        <div className="w-3/4 mx-auto space-y-6">
           <Input
             isRequired
             clearable
@@ -38,8 +38,6 @@ const LoginPage = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-        </div>
-        <div className="w-full mb-4">
           <Input
             isRequired
             clearable
@@ -56,15 +54,13 @@ const LoginPage = () => {
         <div className="flex justify-center w-full mt-4 space-x-4">
           <Button
             onClick={handleSignUp}
-            color="gradient"
             className="w-auto"
           >
             Sign Up
           </Button>
           <Button
             onClick={handleLogin}
-            color="success"
-            className="w-auto bg-green-500"
+            className="w-auto bg-green-600"
           >
             Login
           </Button>
