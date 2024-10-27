@@ -19,7 +19,7 @@
   /* colors */
   --light-blue: #a7e6ff ;
   --azure-blue: #3572ef;
-  --dark-blue: #050c9c; 
+  --dark-blue: #050c9c;
 }
 
 a {
@@ -70,6 +70,11 @@ input {
   background-color: var(--azure-blue);
   cursor: pointer;
   transition: border-color 0.25s;
+}
+input:disabled {
+  background-color: #1d4cac;
+  color: white;
+  cursor: not-allowed;
 }
 
 /* container for general use, TODO: adjust */
