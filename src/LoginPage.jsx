@@ -1,54 +1,77 @@
-import React from 'react';
-import { Textarea, Input, Button, Spacer } from '@nextui-org/react';
-import InfoComponent from './InfoComponent';
+import React, { useState } from "react";
+import { Button, Input, Link } from "@nextui-org/react";
+import InfoComponent from "./InfoComponent";
 
 const LoginPage = () => {
-  const aboutContent = [
-    'Untitled is an online multiplayer drawing and Pictionary guessing game that uses AI to generate theme-based words!',
-    'A typical game consists of three rounds. At the start, players type in their chosen theme and vote for the most exciting and fun option. The AI then generates words based on the selected theme. A player draws their chosen word while others try to guess it to earn points.',
-    'The player with the most points at the end of the game wins!'
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = () => {
+    // logic
+  };
+
+  const handleSignUp = () => {
+    // logic
+  };
+
+  const infoTitle = "About";
+  const infoContent = [
+    "Untitled is an online multiplayer drawing and Pictionary guessing game that uses AI to generate theme-based words!",
+    "A typical game consists of three rounds. At the start, players type in their chosen theme and vote for the most exciting and fun option. The AI then generates words based on the selected theme. A player draws their chosen word while others try to guess it to earn points.",
+    "The player with the most points at the end of the game wins!",
   ];
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="flex flex-col items-center justify-center bg-dark-blue rounded-lg p-8 max-w-md mx-auto shadow-lg border-2 border-gray-300">
-        {/* LOGIN */}
-        <h2 className="text-2xl font-bold text-white mb-4">Welcome!</h2>
-
-        <Input
-          clearable
-          underlined
-          labelPlaceholder="Username"
-          className="mb-4"
-        />
-        <Input
-          clearable
-          underlined
-          labelPlaceholder="Password"
-          type="password"
-          className="mb-8"
-        />
-
-        <Button
-          shadow
-          color="primary"
-          auto
-          className="w-full mb-4"
-        >
-          Sign Up
-        </Button>
-        <Button
-          shadow
-          color="success"
-          auto
-          className="w-full"
-        >
-          Login
-        </Button>
-
-        {/* INFO */}
-        <InfoComponent title="About" content={aboutContent} />
+    <div className="flex flex-col items-center min-h-screen bg-blue-900 text-white p-6 space-y-8">
+      <h1 className="text-4xl font-bold tracking-wide text-center mt-8 mb-12">UNTITLED</h1>
+      
+      <div className="w-full max-w-md p-8 bg-darkBlue rounded-lg shadow-lg text-center space-y-6">
+        <h2 className="text-2xl">Welcome!</h2>
+        <div className="w-full mb-4">
+          <Input
+            isRequired
+            clearable
+            underlined
+            type="email"
+            placeholder="Email"
+            color="primary"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+        <div className="w-full mb-4">
+          <Input
+            isRequired
+            clearable
+            underlined
+            type="password"
+            placeholder="Password"
+            color="primary"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        {/* TODO: change to a Link or button */}
+        <p className="text-sm text-blue-300 cursor-pointer">Forgot password?</p>
+        <div className="flex justify-center w-full mt-4 space-x-4">
+          <Button
+            onClick={handleSignUp}
+            color="gradient"
+            className="w-auto"
+          >
+            Sign Up
+          </Button>
+          <Button
+            onClick={handleLogin}
+            color="success"
+            className="w-auto bg-green-500"
+          >
+            Login
+          </Button>
+        </div>
       </div>
+
+      <InfoComponent title={infoTitle} content={infoContent} />
     </div>
   );
 };

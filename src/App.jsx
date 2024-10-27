@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { Button } from '@nextui-org/react'
 import CanvasComponent from './CanvasComponent'
+import InfoComponent from './InfoComponent'
 import LoginPage from './LoginPage'
+import SignUpPage from './SignUpPage.jsx'
 
 const App = () => {
 	const [color, setColor] = useState('black');
@@ -10,6 +12,7 @@ const App = () => {
 	return (
 		<>
 			<LoginPage/>
+			{/* <SignUpPage/> */}
 			{/* <CanvasComponent color={color} brushSize={brushSize} />
 			<Button id="change_to_white" onClick={() => setColor('white')}>White</Button>
 			<Button id="change_to_black" onClick={() => setColor('black')}>Black</Button>
