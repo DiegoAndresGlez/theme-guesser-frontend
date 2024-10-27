@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button, Input, Link } from "@nextui-org/react";
 import InfoComponent from "./InfoComponent";
 
-const LoginPage = () => {
+const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -22,9 +22,7 @@ const LoginPage = () => {
   ];
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-blue-900 text-white p-6 space-y-8">
-      <h1 className="text-4xl font-bold tracking-wide text-center mt-8 mb-12">UNTITLED</h1>
-      
+    <div className="flex flex-col items-center min-h-screend text-white p-6 space-y-8">
       <div className="w-full max-w-md p-8 bg-darkBlue rounded-lg shadow-lg text-center space-y-6">
         <h2 className="text-2xl">Welcome!</h2>
         <div className="w-3/4 mx-auto space-y-6">
@@ -72,4 +70,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default Login;
