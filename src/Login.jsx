@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Input, Link } from "@nextui-org/react";
+import { Button, Input, Card, CardHeader, CardBody } from "@nextui-org/react";
 import InfoComponent from "./InfoComponent";
 
 const Login = () => {
@@ -22,48 +22,47 @@ const Login = () => {
   ];
 
   return (
-    <div className="flex flex-col items-center min-h-screend text-white p-6 space-y-8">
-      <div className="w-full max-w-md p-8 bg-darkBlue rounded-lg shadow-lg text-center space-y-6">
-        <h2 className="text-2xl">Welcome!</h2>
-        <div className="w-3/4 mx-auto space-y-6">
-          <Input
-            isRequired
-            clearable
-            underlined
-            type="email"
-            placeholder="Email"
-            color="primary"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <Input
-            isRequired
-            clearable
-            underlined
-            type="password"
-            placeholder="Password"
-            color="primary"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        {/* TODO: change to a Link or button */}
-        <p className="text-sm text-blue-300 cursor-pointer">Forgot password?</p>
-        <div className="flex justify-center w-full mt-4 space-x-4">
-          <Button
-            onClick={handleSignUp}
-            className="w-auto"
-          >
-            Sign Up
-          </Button>
-          <Button
-            onClick={handleLogin}
-            className="w-auto bg-green-600"
-          >
-            Login
-          </Button>
-        </div>
-      </div>
+    <div className="flex flex-col items-center">
+      <Card className="w-full max-w-md shadow-lg bg-primary">
+        <CardHeader className="text-2xl">Welcome!</CardHeader>
+        <CardBody className="mt-4">
+          <div>
+            <Input
+              isRequired
+              clearable
+              underlined
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <Input
+              isRequired
+              clearable
+              underlined
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            {/* TODO: change to a Link or button */}
+            <p>Forgot password?</p>
+          </div>
+          
+          <div className="flex justify-center">
+              <Button
+                onClick={handleSignUp}
+              >
+                Sign Up
+              </Button>
+              <Button
+                onClick={handleLogin}
+              >
+                Login
+              </Button>
+          </div>
+        </CardBody>
+      </Card>
 
       <InfoComponent title={infoTitle} content={infoContent} />
     </div>

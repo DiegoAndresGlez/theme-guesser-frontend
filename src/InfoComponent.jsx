@@ -1,16 +1,17 @@
 import React from "react";
+import { Button, Input, Card, CardHeader } from "@nextui-org/react";
 
 const InfoComponent = ({ title, content }) => {
   return (
-    <div className="w-full max-w-md p-6 bg-darkBlue rounded-lg shadow-lg text-center mt-8">
-      <h2 className="text-2xl font-semibold mb-4 text-yellow-400">{title}</h2>
+    <Card className="w-full max-w-md text-center bg-primary">
+      <CardHeader className="">{title}</CardHeader>
       {/*for n number of paragraphs*/}
       {content.map((text, index) => (
-        <p key={index} className="text-white text-sm mb-4">
+        <p key={index} className="">
           {text}
         </p>
       ))}
-    </div>
+    </Card>
   );
 };
 
