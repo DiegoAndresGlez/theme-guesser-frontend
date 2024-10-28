@@ -7,11 +7,11 @@ const Login = () => {
   const [password, setPassword] = useState("");
 
   const handleLogin = () => {
-    // logic
+    // logic for login
   };
 
   const handleSignUp = () => {
-    // logic
+    // logic for sign up
   };
 
   const infoTitle = "About";
@@ -22,11 +22,11 @@ const Login = () => {
   ];
 
   return (
-    <div className="flex flex-col items-center">
-      <Card className="w-full max-w-md shadow-lg bg-primary">
-        <CardHeader className="text-2xl">Welcome!</CardHeader>
-        <CardBody className="mt-4">
-          <div>
+    <div className="flex flex-col items-center text-card-text p-4 gap-4">
+      <Card className="w-full max-w-sm mt-2 shadow-lg bg-card-background rounded-xl border border-black p-4">
+        <CardHeader className="text-2xl flex flex-col items-center text-accent p-0">Welcome!</CardHeader>
+        <CardBody className="flex flex-col gap-6 p-4">
+          <div className="flex flex-col gap-4">
             <Input
               isRequired
               clearable
@@ -45,21 +45,23 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            {/* TODO: change to a Link or button */}
-            <p>Forgot password?</p>
+            <p className="text-sm text-accent cursor-pointer hover:underline">Forgot password?</p>
           </div>
           
-          <div className="flex justify-center">
-              <Button
-                onClick={handleSignUp}
-              >
-                Sign Up
-              </Button>
-              <Button
-                onClick={handleLogin}
-              >
-                Login
-              </Button>
+          <div className="flex justify-center gap-3">
+            <Button
+              className="w-auto bg-secondary text-white rounded-lg font-semibold transition duration-300"
+              onClick={handleSignUp}
+            >
+              Sign Up
+            </Button>
+            <Button
+              className="w-auto text-white rounded-lg font-semibold transition duration-300"
+              color="success"
+              onClick={handleLogin}
+            >
+              Login
+            </Button>
           </div>
         </CardBody>
       </Card>

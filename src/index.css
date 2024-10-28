@@ -9,20 +9,15 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #050c9c;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  /* colors */
-  --light-blue: #a7e6ff ;
-  --azure-blue: #3572ef;
-  --dark-blue: #050c9c;
 }
 
-a {
+/* a {
   font-weight: 500;
   color: #646cff;
   text-decoration: inherit;
@@ -39,7 +34,7 @@ h1 {
 h2 {
   font-weight: 300;
   color: var(--light-blue);
-}
+} */
 
 /* button {
   border-radius: 8px;
