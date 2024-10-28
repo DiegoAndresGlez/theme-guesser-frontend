@@ -1,17 +1,63 @@
-import React, { useState } from "react";
-import { Button, Input, Link } from "@nextui-org/react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom"
+import { Button, Input, Spinner } from "@nextui-org/react";
+import AlertModal from "./AlertModal"
 import InfoComponent from "./InfoComponent";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false)
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertVisible, setAlertVisible] = useState(false)
+  const navigate = useNavigate()
 
-  const handleLogin = () => {
-    // logic
+  const handleLogin = async () => {
+    setLoading(true)
+    
+    try {
+      const response = await fetch("http://localhost:3000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password })
+      })
+
+      const data = await response.json() 
+
+      if (!response.ok) {
+        // Get error messages from backend validations and display them
+        const errorMessages = Object.values(data.errors).join(" ") 
+        throw new Error(errorMessages)
+      }
+
+      navigate("/signup") // redirect to signup is an example, should point to join-create-game
+
+      // Handle successful login, e.g. save token or redirect
+      setAlertMessage(data.message || "Login successful! Redirecting...")
+      setAlertVisible(true)
+
+    } catch (error) {
+      console.log("Login error: ", error)
+
+      setAlertMessage(error.message || "Failed to log in. Please check your credentials.")
+      setAlertVisible(true)
+
+    } finally {
+      setLoading(false)
+
+    }
   };
+
+  const handleCloseAlert = () => {
+    setAlertVisible(false)
+    setAlertMessage("")
+  }
 
   const handleSignUp = () => {
     // logic
+    // Redirect to /signup
   };
 
   const infoTitle = "About";
@@ -22,6 +68,13 @@ const Login = () => {
   ];
 
   return (
+    <>
+    {alertVisible && (< AlertModal 
+      isOpen={alertVisible} 
+      onClose={handleCloseAlert} 
+      message={alertMessage}
+      size="lg" />)}
+    
     <div className="flex flex-col items-center min-h-screend text-white p-6 space-y-8">
       <div className="w-full max-w-md p-8 bg-darkBlue rounded-lg shadow-lg text-center space-y-6">
         <h2 className="text-2xl">Welcome!</h2>
@@ -59,14 +112,16 @@ const Login = () => {
           <Button
             onClick={handleLogin}
             className="w-auto bg-green-600"
+            disabled={loading}
           >
-            Login
+            {loading ? <Spinner color="white" size="sm"/> : "Login"}
           </Button>
         </div>
       </div>
 
       <InfoComponent title={infoTitle} content={infoContent} />
     </div>
+    </>
   );
 };
 

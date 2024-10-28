@@ -1,7 +1,6 @@
 // tailwind.config.js
 import { nextui } from "@nextui-org/react";
 
-/** @type {import('tailwindcss').Config} */
 export const content = [
   // ...
   // make sure it's pointing to the ROOT node_module

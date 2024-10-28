@@ -1,8 +1,4 @@
-import { useState } from 'react'
-import { Button } from '@nextui-org/react'
 import Header from './components/Header.jsx'
-import CanvasComponent from './CanvasComponent'
-import InfoComponent from './InfoComponent'
 import Login from './Login.jsx'
 import SignUp from './SignUp.jsx'
 import EditProfile from './EditProfile.jsx'
