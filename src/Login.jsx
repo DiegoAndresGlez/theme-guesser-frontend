@@ -1,7 +1,6 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom"
 import AlertModal from "./AlertModal"
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button, Input, Card, CardHeader, CardBody, Spinner } from "@nextui-org/react";
 import InfoComponent from "./InfoComponent";
 
