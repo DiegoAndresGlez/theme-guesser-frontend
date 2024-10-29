@@ -57,31 +57,39 @@ const SignUp = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-            <Input
-              isRequired
-              clearable
-              underlined
-              placeholder="Password"
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <Input
-              isRequired
-              clearable
-              underlined
-              placeholder="Repeat Password"
-              type={showPassword ? "text" : "password"}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-            <div className="flex justify-between items-center">
-              <label
-                className="cursor-pointer text-sm text-gray-500"
+            <div className="relative">
+              <Input
+                isRequired
+                clearable
+                underlined
+                placeholder="Password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <img
+                src={`assets/img/${showPassword ? "assets/img/eye.png" : "assets/img/eye.png"}`}
+                alt="Toggle password visibility"
+                className="absolute right-2 top-2 w-6 h-6 cursor-pointer"
                 onClick={toggleShowPassword}
-              >
-                {showPassword ? "Hide Password" : "Show Password"}
-              </label>
+              />
+            </div>
+            <div className="relative">
+              <Input
+                isRequired
+                clearable
+                underlined
+                placeholder="Repeat Password"
+                type={showPassword ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+              <img
+                src={`assets/img/${showPassword ? "assets/img/eye.png" : "assets/img/eye.png"}`}
+                alt="Toggle password visibility"
+                className="absolute right-2 top-2 w-6 h-6 cursor-pointer"
+                onClick={toggleShowPassword}
+              />
             </div>
           </div>
           <div className="flex justify-center gap-3">

@@ -10,6 +10,11 @@
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #050c9c;
+  
+  background-image: url('assets/img/background_drawing.png');
+  background-repeat: repeat;
+  background-size: 50rem;
+  background-position: top left;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
