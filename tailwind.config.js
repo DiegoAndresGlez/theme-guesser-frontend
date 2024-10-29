@@ -18,6 +18,7 @@ module.exports = {
         "card-background": "#050c9c",
         "card-text": "#e4e4e4",
         "bg-modal-background": "#050c9c",
+        "divider": "#3572ef",
       },
       borderRadius: {
         small: "2px",

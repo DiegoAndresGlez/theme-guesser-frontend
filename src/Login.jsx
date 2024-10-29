@@ -3,6 +3,7 @@ import AlertModal from "./AlertModal"
 import { useState } from "react";
 import { Button, Input, Card, CardHeader, CardBody, Spinner } from "@nextui-org/react";
 import InfoComponent from "./InfoComponent";
+import supabase from './config/supabaseClient'
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -11,43 +12,58 @@ const Login = () => {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertVisible, setAlertVisible] = useState(false)
   const navigate = useNavigate()
+  let errors = []
+
+  const handleValidations = () => {
+      if (password === "") {
+        errors.push("Password is empty.")
+      }
+
+      if (email === "") {
+        errors.push("Email is empty.")
+      }
+
+      if (errors.length > 0) {
+        throw new Error(errors.join(" ")); // Concatenate error messages with space
+      }
+
+      setAlertMessage(errors)
+  }
 
   const handleLogin = async () => {
     setLoading(true)
     
     try {
-      const response = await fetch("http://localhost:3000/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password })
+      handleValidations()
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
       })
 
-      const data = await response.json() 
-
-      if (!response.ok) {
-        // Get error messages from backend validations and display them
-        const errorMessages = Object.values(data.errors).join(" ") 
-        throw new Error(errorMessages)
+      if (error) {
+        throw new Error(error)
       }
-
-      navigate("/join-create-game") // redirect to join-create-game
 
       // Handle successful login, e.g. save token or redirect
       setAlertMessage(data.message || "Login successful! Redirecting...")
       setAlertVisible(true)
+      console.log('User logged in: ', data.session)
+      setTimeout(() => {
+        navigate("/join-create-game") // redirect to join-create-game
+      }, 2000)
 
-    } catch (error) {
-      console.log("Login error: ", error)
+      console.log('User logged in, session: ', data.session)
 
+    } catch(error) {
+      console.log(error)
+      // Get error messages from backend validations and display them
       setAlertMessage(error.message || "Failed to log in...")
       setAlertVisible(true)
-
-    } finally {
       setLoading(false)
-
     }
+
+    setLoading(false)
   }
 
   const handleCloseAlert = () => {
