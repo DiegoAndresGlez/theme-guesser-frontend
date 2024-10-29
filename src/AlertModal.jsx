@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { 
   Modal, 
   ModalContent,
@@ -8,37 +8,29 @@ import {
   Button,
 } from "@nextui-org/react"
 
-import PropTypes from 'prop-types'
-
 const AlertModal = ({ isOpen, onClose, message, size }) => {
-  // const {isOpen, onOpen, onClose} = useDisclosure();
-  // const [isOpen, setIsOpen] = useState(false)
 
-  // const sizes = ["xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl", "5xl", "full"];
-
-  useEffect(() => {
-    if (isOpen) {
-      console.log("Modal is open")
-    }
-  }, [isOpen])
+  const messageWords = message ? message.split(". ") : []
 
   return (
     <>
       <Modal 
-        size={size} 
+        size={size || "md"} 
         isOpen={isOpen} 
         onClose={onClose} 
       >
-        <ModalContent>
+        <ModalContent className="bg-bg-modal-background">
             <>
               <ModalHeader className="flex flex-col gap-1"></ModalHeader>
-              <ModalBody>
-                <p>
-                  { message }
-                </p> 
+              <ModalBody className="primary">
+                <ul className='list-disc list-inside space-y-2'>
+                  {messageWords.map((word, index) => (
+                    <li key={index}>{word}</li>
+                  ))}
+                </ul>
               </ModalBody>
               <ModalFooter>
-                <Button color="primary" onPress={onClose}>
+                <Button color="secondary" onPress={onClose}> 
                   Continue
                 </Button>
               </ModalFooter>

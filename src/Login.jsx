@@ -32,7 +32,7 @@ const Login = () => {
         throw new Error(errorMessages)
       }
 
-      navigate("/signup") // redirect to signup is an example, should point to join-create-game
+      navigate("/join-create-game") // redirect to join-create-game
 
       // Handle successful login, e.g. save token or redirect
       setAlertMessage(data.message || "Login successful! Redirecting...")
@@ -41,7 +41,7 @@ const Login = () => {
     } catch (error) {
       console.log("Login error: ", error)
 
-      setAlertMessage(error.message || "Failed to log in. Please check your credentials.")
+      setAlertMessage(error.message || "Failed to log in...")
       setAlertVisible(true)
 
     } finally {
@@ -56,6 +56,7 @@ const Login = () => {
   }
 
   const handleSignUp = () => {
+    navigate("/signup")
   };
 
   const infoTitle = "About";
@@ -96,7 +97,7 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <p className="text-sm text-accent cursor-pointer hover:underline">Forgot password?</p>
+            <p className="text-sm text-accent cursor-pointer hover:underline" onClick={() => { navigate('/forgot-password')}}>Forgot password?</p>
           </div>
           
           <div className="flex justify-center gap-3">
@@ -110,8 +111,13 @@ const Login = () => {
               className="w-auto text-white rounded-lg font-semibold transition duration-300"
               color="success"
               onClick={handleLogin}
+              disabled={loading}
             >
-              Login
+             {loading ? (
+                <Spinner size="sm" className="mr-1" color="white" />
+              ) : (
+                "Login"
+              )}
             </Button>
           
           </div>

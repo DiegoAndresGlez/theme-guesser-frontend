@@ -17,6 +17,7 @@ module.exports = {
         "background-pattern": "#050c9c",
         "card-background": "#050c9c",
         "card-text": "#e4e4e4",
+        "bg-modal-background": "#050c9c",
       },
       borderRadius: {
         small: "2px",
