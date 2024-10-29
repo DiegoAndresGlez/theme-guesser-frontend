@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Button, Input } from "@nextui-org/react";
+import { Button, Input, Card, CardHeader, CardBody } from "@nextui-org/react";
 import InfoComponent from "./InfoComponent";
-import { ArrowLeftIcon } from '@heroicons/react/24/solid';
+import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 
 const SignUp = () => {
   const [username, setUsername] = useState("");
@@ -30,59 +30,80 @@ const SignUp = () => {
   ];
 
   return (
-    <div className="flex flex-col items-center min-h-screend text-white p-6 space-y-8">
-      <div className="w-full max-w-md bg-darkBlue rounded-lg shadow-lg text-center">
-        <div className="w-full flex justify-start pl-4 pt-4">
-          <Button className="rounded-full h-10 w-10 flex items-center justify-center p-0" onClick={handleBack}>
-            <ArrowLeftIcon className="h-5 w-5" aria-hidden="true" />
+    <div className="flex flex-col items-center text-card-text p-4 gap-4">
+      <Card className="w-full max-w-sm mt-2 shadow-lg bg-card-background rounded-xl border border-black p-4">
+        <div>
+          <Button className="rounded-full h-12 w-12 bg-accent" onClick={handleBack}>
+            <ArrowLeftIcon className="h-5 w-5"/>
           </Button>
         </div>
-        <div className="w-3/4 mx-auto space-y-6 pb-8 pl-8 pr-8">
-          <h2 className="text-2xl mt-0">Create an account</h2>
-          <Input
-            isRequired
-            clearable
-            underlined
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <Input
-            isRequired
-            clearable
-            underlined
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+        <CardHeader className="text-2xl flex flex-col items-center text-accent p-0">Create an account</CardHeader>
+        <CardBody className="flex flex-col gap-6 p-4">
+          <div className="flex flex-col gap-4">
             <Input
               isRequired
               clearable
               underlined
-              placeholder="Password"
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
             <Input
               isRequired
               clearable
               underlined
-              placeholder="Repeat Password"
-              type={showPassword ? "text" : "password"}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
-            <div className="flex justify-between items-center">
-                <label className="cursor-pointer text-sm text-gray-500" onClick={toggleShowPassword}>
-                {showPassword ? "Hide Password" : "Show Password"}
-                </label>
+            <div className="relative">
+              <Input
+                isRequired
+                clearable
+                underlined
+                placeholder="Password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <img
+                src={`assets/img/${showPassword ? "assets/img/eye.png" : "assets/img/eye.png"}`}
+                alt="Toggle password visibility"
+                className="absolute right-2 top-2 w-6 h-6 cursor-pointer"
+                onClick={toggleShowPassword}
+              />
             </div>
-          <Button onClick={handleSignUp} className="w-auto bg-green-600">
-            Accept
-          </Button>
-        </div>
-      </div>
+            <div className="relative">
+              <Input
+                isRequired
+                clearable
+                underlined
+                placeholder="Repeat Password"
+                type={showPassword ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+              <img
+                src={`assets/img/${showPassword ? "assets/img/eye.png" : "assets/img/eye.png"}`}
+                alt="Toggle password visibility"
+                className="absolute right-2 top-2 w-6 h-6 cursor-pointer"
+                onClick={toggleShowPassword}
+              />
+            </div>
+          </div>
+          <div className="flex justify-center gap-3">
+            <Button
+              className="w-auto text-white rounded-lg font-semibold transition duration-300"
+              color="success"
+              onClick={handleSignUp}
+            >
+              Accept
+            </Button>
+          </div>
+        </CardBody>
+      </Card>
+
       <InfoComponent title={infoTitle} content={infoContent} />
     </div>
   );

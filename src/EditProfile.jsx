@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Input } from "@nextui-org/react";
+import { Button, Input, Card, CardHeader, CardBody } from "@nextui-org/react";
 import InfoComponent from "./InfoComponent";
 import { ArrowLeftIcon } from '@heroicons/react/24/solid';
 
@@ -24,21 +24,17 @@ const EditProfile = () => {
     setShowPassword(!showPassword);
   };
 
-  const infoTitle = "About";
-  const infoContent = [
-    "Update your profile details to keep your account information current.",
-  ];
-
   return (
-    <div className="flex flex-col items-center min-h-screend text-white p-6 space-y-8">
-      <div className="w-full max-w-md bg-darkBlue rounded-lg shadow-lg text-center">
-        <div className="w-full flex justify-start pl-4 pt-4">
-          <Button className="rounded-full h-10 w-10 flex items-center justify-center p-0" onClick={handleBack}>
-            <ArrowLeftIcon className="h-5 w-5" aria-hidden="true" />
+    <div className="flex flex-col items-center text-card-text p-4 gap-4">
+      <Card className="w-full max-w-sm mt-2 shadow-lg bg-card-background rounded-xl border border-black p-4">
+      <div>
+          <Button className="rounded-full bg-accent" onClick={handleBack}>
+            <ArrowLeftIcon className="h-5 w-5"/>
           </Button>
         </div>
-        <div className="w-3/4 mx-auto space-y-6 pb-8 pl-8 pr-8">
-          <h2 className="text-2xl mt-0">Edit Profile</h2>
+        <CardHeader className="text-2xl flex flex-col items-center text-accent p-0">Edit Profile</CardHeader>
+        <CardBody className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4">
           <Input
             isDisabled
             clearable
@@ -95,12 +91,18 @@ const EditProfile = () => {
               {showPassword ? "Hide Password" : "Show Password"}
             </label>
           </div>
-          <Button onClick={handleSaveChanges} className="w-auto bg-green-600">
-            Accept
-          </Button>
-        </div>
-      </div>
-      <InfoComponent title={infoTitle} content={infoContent} />
+          </div>
+          <div className="flex justify-center gap-3">
+            <Button
+              className="w-auto text-white rounded-lg font-semibold transition duration-300"
+              color="success"
+              onClick={handleSaveChanges}
+            >
+              Accept
+            </Button>
+          </div>
+        </CardBody>
+      </Card>
     </div>
   );
 };

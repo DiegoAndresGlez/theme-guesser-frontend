@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"
-import { Button, Input, Spinner } from "@nextui-org/react";
 import AlertModal from "./AlertModal"
+import React, { useState } from "react";
+import { Button, Input, Card, CardHeader, CardBody, Spinner } from "@nextui-org/react";
 import InfoComponent from "./InfoComponent";
 
 const Login = () => {
@@ -48,7 +49,7 @@ const Login = () => {
       setLoading(false)
 
     }
-  };
+  }
 
   const handleCloseAlert = () => {
     setAlertVisible(false)
@@ -56,8 +57,6 @@ const Login = () => {
   }
 
   const handleSignUp = () => {
-    // logic
-    // Redirect to /signup
   };
 
   const infoTitle = "About";
@@ -75,49 +74,50 @@ const Login = () => {
       message={alertMessage}
       size="lg" />)}
     
-    <div className="flex flex-col items-center min-h-screend text-white p-6 space-y-8">
-      <div className="w-full max-w-md p-8 bg-darkBlue rounded-lg shadow-lg text-center space-y-6">
-        <h2 className="text-2xl">Welcome!</h2>
-        <div className="w-3/4 mx-auto space-y-6">
-          <Input
-            isRequired
-            clearable
-            underlined
-            type="email"
-            placeholder="Email"
-            color="primary"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <Input
-            isRequired
-            clearable
-            underlined
-            type="password"
-            placeholder="Password"
-            color="primary"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        {/* TODO: change to a Link or button */}
-        <p className="text-sm text-blue-300 cursor-pointer">Forgot password?</p>
-        <div className="flex justify-center w-full mt-4 space-x-4">
-          <Button
-            onClick={handleSignUp}
-            className="w-auto"
-          >
-            Sign Up
-          </Button>
-          <Button
-            onClick={handleLogin}
-            className="w-auto bg-green-600"
-            disabled={loading}
-          >
-            {loading ? <Spinner color="white" size="sm"/> : "Login"}
-          </Button>
-        </div>
-      </div>
+    <div className="flex flex-col items-center text-card-text p-4 gap-4">
+      <Card className="w-full max-w-sm mt-2 shadow-lg bg-card-background rounded-xl border border-black p-4">
+        <CardHeader className="text-2xl flex flex-col items-center text-accent p-0">Welcome!</CardHeader>
+        <CardBody className="flex flex-col gap-6 p-4">
+          <div className="flex flex-col gap-4">
+            <Input
+              isRequired
+              clearable
+              underlined
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <Input
+              isRequired
+              clearable
+              underlined
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <p className="text-sm text-accent cursor-pointer hover:underline">Forgot password?</p>
+          </div>
+          
+          <div className="flex justify-center gap-3">
+            <Button
+              className="w-auto bg-secondary text-white rounded-lg font-semibold transition duration-300"
+              onClick={handleSignUp}
+            >
+              Sign Up
+            </Button>
+            <Button
+              className="w-auto text-white rounded-lg font-semibold transition duration-300"
+              color="success"
+              onClick={handleLogin}
+            >
+              Login
+            </Button>
+          
+          </div>
+        </CardBody>
+      </Card>
 
       <InfoComponent title={infoTitle} content={infoContent} />
     </div>

@@ -9,20 +9,20 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #050c9c;
+  
+  background-image: url('assets/img/background_drawing.png');
+  background-repeat: repeat;
+  background-size: 50rem;
+  background-position: top left;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  /* colors */
-  --light-blue: #a7e6ff ;
-  --azure-blue: #3572ef;
-  --dark-blue: #050c9c;
 }
 
-a {
+/* a {
   font-weight: 500;
   color: #646cff;
   text-decoration: inherit;
@@ -39,9 +39,9 @@ h1 {
 h2 {
   font-weight: 300;
   color: var(--light-blue);
-}
+} */
 
-button {
+/* button {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
@@ -58,9 +58,9 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
-}
+} */
 
-input {
+/* input {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
@@ -75,7 +75,7 @@ input:disabled {
   background-color: #1d4cac;
   color: white;
   cursor: not-allowed;
-}
+} */
 
 /* container for general use, TODO: adjust */
 .container {

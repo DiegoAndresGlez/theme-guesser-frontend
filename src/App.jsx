@@ -12,6 +12,7 @@ const App = () => {
 			<main>			
 				<Routes>
 					{/* <Route path="/" element={<EmailVerificationHandler/>} /> */}
+					<Route path="/" element={<SignUp/>}/>
 					<Route path="/login" element={<Login/>}/>
 					<Route path="/signup" element={<SignUp/>}/>
 					<Route path="/edit-profile" element={<EditProfile/>}/>
@@ -29,5 +30,4 @@ export default App
 <Button id="small_brush" onClick={() => setBrushSize(1)}>Small</Button>
 <Button id="medium_brush" onClick={() => setBrushSize(5)}>Medium</Button>
 <Button id="large_brush" onClick={() => setBrushSize(10)}>Large</Button> }*/
-
 
