@@ -4,7 +4,8 @@ import SignUp from './SignUp.jsx'
 import EditProfile from './EditProfile.jsx'
 // import EmailVerificationHandler from './EmailVerificationHandler.jsx'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import ForgotPassword from './ForgotPassword.jsx'
+import ForgotPasswordConfirm from './ForgotPasswordConfirm.jsx'
+import ForgotPasswordEmail from './ForgotPasswordEmail.jsx'
 import JoinCreateGame from './JoinCreateGame.jsx'
 
 const App = () => {
@@ -17,8 +18,9 @@ const App = () => {
 					<Route path="/" element={<Login/>}/>
 					<Route path="/login" element={<Login/>}/>
 					<Route path="/signup" element={<SignUp/>}/>
-					<Route path="/edit-profile" element={<EditProfile/>}/>
-					<Route path="/forgot-password" element={<ForgotPassword/>}/>
+					<Route path="/edit-profile/:id" element={<EditProfile/>}/>
+					<Route path="/forgot-password" element={<ForgotPasswordEmail/>}/>
+					<Route path="/forgot-password-confirm" element={<ForgotPasswordConfirm/>}/>
 					<Route path="/join-create-game" element={<JoinCreateGame/>}/>
 				</Routes>
 			</main>

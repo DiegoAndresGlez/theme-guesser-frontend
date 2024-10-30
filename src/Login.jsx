@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom"
-import AlertModal from "./AlertModal"
+import AlertModal from "./components/AlertModal"
 import { useState } from "react";
 import { Button, Input, Card, CardHeader, CardBody, Spinner } from "@nextui-org/react";
 import InfoComponent from "./InfoComponent";
@@ -48,12 +48,10 @@ const Login = () => {
       // Handle successful login, e.g. save token or redirect
       setAlertMessage(data.message || "Login successful! Redirecting...")
       setAlertVisible(true)
-      console.log('User logged in: ', data.session)
       setTimeout(() => {
-        navigate("/join-create-game") // redirect to join-create-game
+        navigate(`/edit-profile/${data.user.id}`) // redirect to join-create-game
       }, 2000)
 
-      console.log('User logged in, session: ', data.session)
 
     } catch(error) {
       console.log(error)

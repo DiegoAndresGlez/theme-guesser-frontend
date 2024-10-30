@@ -1,19 +1,15 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button, Input, Card, CardHeader, CardBody } from "@nextui-org/react";
-import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 
-const ForgotPassword = () => {
-  const [email, setEmail] = useState("");
+const ForgotPasswordConfirm = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const handleResetPassword = () => {
     // Logic for password reset
-  };
-
-  const handleBack = () => {
-    // Logic for navigating back to login
+    // Show alert modal
+    // Redirect to login
   };
 
   const toggleShowPassword = () => {
@@ -23,14 +19,6 @@ const ForgotPassword = () => {
   return (
     <div className="flex flex-col items-center text-card-text p-4 gap-4">
       <Card className="w-full max-w-sm mt-2 shadow-lg bg-card-background rounded-xl border border-black p-4">
-        <div>
-          <Button 
-            className="rounded-full p-2 bg-accent flex items-center justify-center" 
-            onClick={handleBack}
-          >
-            <ArrowLeftIcon className="h-5 w-5" aria-hidden="true" />
-          </Button>
-        </div>
         <CardHeader className="text-2xl flex flex-col items-center text-accent p-0">
           Forgot Password
         </CardHeader>
@@ -78,4 +66,4 @@ const ForgotPassword = () => {
   );
 };
 
-export default ForgotPassword;
+export default ForgotPasswordConfirm;

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button, Input, Card, CardHeader, CardBody, Spinner } from "@nextui-org/react";
 import { useNavigate } from "react-router-dom";
 import InfoComponent from "./InfoComponent";
-import AlertModal from "./AlertModal";
+import AlertModal from "./components/AlertModal";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 
 const SignUp = () => {
@@ -31,13 +31,25 @@ const SignUp = () => {
       const data = await response.json() 
 
       if (!response.ok) {
-        // Get error messages from backend validations and display them
-        const errorMessages = Object.values(data.errors).join(" ") 
-        console.log(errorMessages)
-        throw new Error(errorMessages)
+        console.log(data);
+  
+        let errorMessages = "";
+  
+        if (data.error) {
+          // Single error message
+          errorMessages = data.error;
+        } else if (data.errors) {
+          // Multiple errors, combine them into a single message string
+          errorMessages = Object.values(data.errors).join(" ");
+        } else {
+          // Unexpected error format
+          errorMessages = "An unknown error occurred. Please try again.";
+        }
+  
+        throw new Error(errorMessages);
       }
 
-      // Handle successful login, e.g. save token or redirect
+      // Handle verifying email
       
       navigate("/join-create-game") // redirect to signup is an example, should point to join-create-game
 
