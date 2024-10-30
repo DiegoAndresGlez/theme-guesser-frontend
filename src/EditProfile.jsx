@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button, Input, Card, CardHeader, CardBody, Divider } from "@nextui-org/react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeftIcon } from '@heroicons/react/24/solid';
+import supabase from './config/supabaseClient'
 import AlertModal from "./components/AlertModal";
 
 const EditProfile = () => {
@@ -116,7 +117,7 @@ const EditProfile = () => {
 
     } catch (error) {
 
-      setAlertMessage(error.message || "Failed to sign up...")
+      setAlertMessage(error.message || "An error occured when trying to send your request email change... Please try again later.")
       setAlertVisible(true)
 
     } finally {
@@ -125,6 +126,90 @@ const EditProfile = () => {
     }
   }
 
+  const handlePasswordChange = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/api/auth/update-profile-password", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          currentPassword: currentPassword,
+          newPassword: newPassword,
+          confirmNewPassword: confirmNewPassword 
+        }),
+      })
+
+
+      const data = response.json()
+
+      // Check if response is ok before parsing
+      if (!response.ok) {
+        console.log(data);
+      
+        let errorMessages = "";
+      
+        if (data.error) {
+          // Single error message
+          errorMessages = data.error;
+        } else if (data.errors) {
+          // Multiple errors, combine them into a single message string
+          errorMessages = Object.values(data.errors).join(" ");
+        } else {
+          // Unexpected error format
+          errorMessages = "An unknown error occurred. Please try again.";
+        }
+      
+        throw new Error(errorMessages);
+      }
+
+
+    setAlertVisible(true)
+    setAlertMessage("Your password has succesfully changed!");
+
+    if (!alertVisible){
+      setTimeout(() => {
+        handleSignOut()
+        navigate(`/login`) // redirect to join-create-game
+      }, 2000)
+    }
+
+    } catch (error) {
+
+      setAlertMessage(error.message || "An error occured when trying to update your password... Please try again later.")
+      setAlertVisible(true)
+
+    } finally {
+      setLoading(false)
+
+    }
+  }
+
+  const handleSignOut = async () => {
+    try {
+        const { error } = await supabase.auth.signOut();
+
+        if (error) {
+            throw error; // Handle sign-out error
+        }
+
+        // Clear any user-related state or local storage if necessary
+        localStorage.removeItem('token'); // If you're storing a token
+        // Update your application state to reflect that the user is signed out
+        console.log("User signed out successfully");
+        // Optionally, redirect to login page or home page
+        window.location.href = '/login'; // Adjust the path as necessary
+
+    } catch (error) {
+        setAlertMessage(error.message || "An error occured when trying to update your password... Please try again later.")
+        setAlertVisible(true)
+
+    } finally {
+
+      setLoading(false)
+    }
+  };
 
   const handleBack = () => {
     navigate('/join-create-game');
@@ -254,7 +339,7 @@ const EditProfile = () => {
               <Button
                 className="w-auto text-white rounded-lg font-semibold transition duration-300"
                 color="success"
-                // onClick={handlePasswordChange}
+                onClick={handlePasswordChange}
               >
                 Change password
               </Button>
