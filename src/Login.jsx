@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom"
 import AlertModal from "./components/AlertModal"
 import { useState } from "react";
 import { Button, Input, Card, CardHeader, CardBody, Spinner } from "@nextui-org/react";
+import Title from "./components/Title"
 import InfoComponent from "./InfoComponent";
 import supabase from './config/supabaseClient'
 
@@ -89,6 +90,7 @@ const Login = () => {
       size="lg" />)}
     
     <div className="flex flex-col items-center text-card-text p-4 gap-4">
+      <Title message="Theme Guesser"/>
       <Card className="w-full max-w-sm mt-2 shadow-lg bg-card-background rounded-xl border border-black p-4">
         <CardHeader className="text-2xl flex flex-col items-center text-accent p-0">Welcome!</CardHeader>
         <CardBody className="flex flex-col gap-6 p-4">

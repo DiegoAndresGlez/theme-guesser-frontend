@@ -11,6 +11,7 @@ import JoinCreateGame from './JoinCreateGame.jsx'
 const App = () => {
 	return (
 		<BrowserRouter>
+			<div className="bg-[url('./assets/img/background_drawing.png')] relative bg-repeat bg-[length:50rem] bg-left min-h-screen">
 			<NavBar/>
 			<main>			
 				<Routes>
@@ -24,6 +25,7 @@ const App = () => {
 					<Route path="/join-create-game" element={<JoinCreateGame/>}/>
 				</Routes>
 			</main>
+			</div>
 		</BrowserRouter>
 	)
 }

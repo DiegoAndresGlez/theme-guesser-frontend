@@ -1,6 +1,5 @@
 // tailwind.config.js
 const { nextui } = require("@nextui-org/react");
-const { a } = require("framer-motion/client");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -10,6 +9,18 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["'Nunito Sans', sans-serif"],
+        heading: ["'Whatdo', sans-serif"],
+      },
+      fontSize: {
+        h1: "80px",
+        h2: "32px",
+        base: "16px",
+        lg: "18px",
+        xl: "24px",
+        "2xl": "32px",
+      },
       colors: {
         primary: {
           50: '#e6e7f5',
@@ -76,6 +87,9 @@ module.exports = {
           900: '#0b1630',
           DEFAULT: '#3572ef',
         },
+        headingColor: {
+          DEFAULT: '#a7e6ff'
+        }
       },
       borderRadius: {
         small: "2px",
@@ -88,15 +102,10 @@ module.exports = {
         medium: "1px",
         large: "2px",
       },
-      backgroundImage: {
-        pattern: "url('/path/to/pattern-image.png')",
-      },
-      fontSize: {
-        base: "16px",
-        lg: "18px",
-        xl: "24px",
-        "2xl": "32px",
-      },
+      // backgroundImage: {
+      //   pattern: "url('/path/to/pattern-image.png')",
+      // },
+      
     },
   },
   plugins: [
