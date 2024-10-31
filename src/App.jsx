@@ -1,4 +1,4 @@
-import Header from './components/Header.jsx'
+import NavBar from './components/NavBar.jsx'
 import Login from './Login.jsx'
 import SignUp from './SignUp.jsx'
 import EditProfile from './EditProfile.jsx'
@@ -11,7 +11,7 @@ import JoinCreateGame from './JoinCreateGame.jsx'
 const App = () => {
 	return (
 		<BrowserRouter>
-			<Header/>
+			<NavBar/>
 			<main>			
 				<Routes>
 					{/* <Route path="/" element={<EmailVerificationHandler/>} /> */}

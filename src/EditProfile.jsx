@@ -61,11 +61,14 @@ const EditProfile = () => {
         console.error(data)
         setUsername(data.username);
         setEmail(data.email);
+
       } catch (error) {
         setAlertMessage(error.message);
         setAlertVisible(true);
+
       } finally {
         setLoading(false);
+
       }
     };
 
@@ -135,12 +138,13 @@ const EditProfile = () => {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify({
+          userId: id,
+          currentEmail: currentEmail,
           currentPassword: currentPassword,
           newPassword: newPassword,
           confirmNewPassword: confirmNewPassword 
         }),
       })
-
 
       const data = response.json()
 
@@ -160,7 +164,7 @@ const EditProfile = () => {
           // Unexpected error format
           errorMessages = "An unknown error occurred. Please try again.";
         }
-      
+
         throw new Error(errorMessages);
       }
 

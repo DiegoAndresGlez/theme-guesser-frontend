@@ -19,7 +19,7 @@ const AlertModal = ({ isOpen, onClose, message, size }) => {
         isOpen={isOpen} 
         onClose={onClose} 
       >
-        <ModalContent className="bg-bg-modal-background">
+        <ModalContent className="bg-primary-500">
             <>
               <ModalHeader className="flex flex-col gap-1"></ModalHeader>
               <ModalBody className="primary">
