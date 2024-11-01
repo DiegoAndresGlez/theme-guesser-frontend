@@ -6,39 +6,13 @@ import {Navbar, NavbarContent, NavbarItem, Button} from "@nextui-org/react";
 import {Dropdown, DropdownTrigger, DropdownMenu, DropdownItem} from "@nextui-org/react";
 import ProfileIcon from "./ProfileIcon";
 import AlertModal from "./AlertModal";
-import { useEffect } from "react";
 
-const NavBar = () => {
-  const [isProfileDisabled, setIsProfileDisabled] = useState(true)
+const NavBar = ({ isProfileDisabled }) => {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertVisible, setAlertVisible] = useState(false)
   const navigate = useNavigate('/login')
-
   const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const checkUserSession = async () => {
-        const { data, error } = await supabase.auth.getSession();
-        if (error) {
-            console.error('Error fetching user:', error.message);
-            setIsProfileDisabled(true);
-            return;
-        }
-        setIsProfileDisabled(!data.session?.user)
-    };
-
-    checkUserSession();
-
-    // Correct subscription syntax
-    const { data: { subscription }, } = supabase.auth.onAuthStateChange((_, session) => {
-        setIsProfileDisabled(!session?.user);
-    });
-
-    // Clean up subscription
-    return () => {
-        if (subscription) subscription.unsubscribe();
-    };
-  }, []);
+ 
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut()
@@ -60,6 +34,10 @@ const NavBar = () => {
   const handleCloseAlert = () => {
     setAlertVisible(false)
     setAlertMessage("")
+  }
+
+  const navigateToEditProfile = () => {
+    navigate('/edit-profile')
   }
 
   return (
@@ -102,7 +80,7 @@ const NavBar = () => {
                   <p className="font-semibold">Signed in as</p>
                   <p className="font-semibold">zoey@example.com</p>
                 </DropdownItem>
-                <DropdownItem key="edit-profile">Edit Profile</DropdownItem>
+                <DropdownItem key="edit-profile" onClick={navigateToEditProfile}>Edit Profile</DropdownItem>
                 <DropdownItem key="logout" color="danger" onClick={handleSignOut}>
                   Log Out
                 </DropdownItem>

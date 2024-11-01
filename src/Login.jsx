@@ -50,7 +50,8 @@ const Login = () => {
       setAlertMessage(data.message || "Login successful! Redirecting...")
       setAlertVisible(true)
       setTimeout(() => {
-        navigate(`/edit-profile/${data.user.id}`) // redirect to join-create-game
+        // navigate(`/edit-profile/${data.user.id}`) // redirect to join-create-game
+        navigate(`/edit-profile`)
       }, 2000)
 
 

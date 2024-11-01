@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import { Button, Input, Card, CardHeader, CardBody, Divider } from "@nextui-org/react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ArrowLeftIcon } from '@heroicons/react/24/solid';
 import supabase from './config/supabaseClient'
 import AlertModal from "./components/AlertModal";
 
 const EditProfile = () => {
-  const { id } = useParams();
   const navigate = useNavigate();
   
   // Form states
@@ -28,11 +27,17 @@ const EditProfile = () => {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/api/auth/user-profile/${id}`, {
+
+        const { data: user_session, error: error } = await supabase.auth.getSession();
+        if (error) {
+          throw new Error(error.message)
+        }
+        
+        const response = await fetch(`http://localhost:3000/api/auth/user-profile`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${user_session.session.access_token}`
           },
         });
 
@@ -56,7 +61,6 @@ const EditProfile = () => {
     
           throw new Error(errorMessages);
         }
-  
 
         console.error(data)
         setUsername(data.username);
@@ -73,10 +77,12 @@ const EditProfile = () => {
     };
 
     fetchProfileData();
-  }, [id]);
+  }, []);
 
   const handleEmailChangeRequest = async () => {
     try {
+      const token = getSessionToken() 
+
       const response = await fetch("http://localhost:3000/api/auth/update-profile-email", {
         method: "PATCH",
         headers: {
@@ -84,7 +90,7 @@ const EditProfile = () => {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify({
-          userId: id,
+          userId: token.user.id,
           currentEmail: currentEmail,
           newEmail: newEmail,
           currentPassword: currentPasswordForEmailChange 
@@ -131,6 +137,8 @@ const EditProfile = () => {
 
   const handlePasswordChange = async () => {
     try {
+      const token = getSessionToken() 
+
       const response = await fetch("http://localhost:3000/api/auth/update-profile-password", {
         method: "PATCH",
         headers: {
@@ -138,7 +146,7 @@ const EditProfile = () => {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify({
-          userId: id,
+          userId: token.user.id,
           currentEmail: currentEmail,
           currentPassword: currentPassword,
           newPassword: newPassword,
