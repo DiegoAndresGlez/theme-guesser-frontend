@@ -43,7 +43,7 @@ const Login = () => {
       })
 
       if (error) {
-        throw new Error(error)
+        throw new Error(error.message)
       }
 
       // Handle successful login, e.g. save token or redirect
