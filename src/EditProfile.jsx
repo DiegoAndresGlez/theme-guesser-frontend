@@ -28,16 +28,16 @@ const EditProfile = () => {
     const fetchProfileData = async () => {
       try {
 
-        const { data: user_session, error: error } = await supabase.auth.getSession();
-        if (error) {
-          throw new Error(error.message)
+        const { data: user } = await supabase.auth.getSession();
+        if (!user) {
+          throw new Error("Authentication error. Could not retrieve active session. Please try logging in again.")
         }
         
         const response = await fetch(`http://localhost:3000/api/auth/user-profile`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${user_session.session.access_token}`
+            'Authorization': `Bearer ${user.session.access_token}`
           },
         });
 
@@ -57,12 +57,10 @@ const EditProfile = () => {
             // Unexpected error format
             errorMessages = "An unknown error occurred. Please try again.";
           }
-          console.log(errorMessages)
     
           throw new Error(errorMessages);
         }
 
-        console.error(data)
         setUsername(data.username);
         setEmail(data.email);
 

@@ -11,7 +11,7 @@ const ProtectedRoute = ({ children }) => {
   
     useEffect(() => {
       const checkAuth = async () => {
-        const { data } = await supabase.auth.getSession();
+        const { data } = await supabase.auth.getSession(); // gets JWT token from browser's local storage
         setIsAuthenticated(!!data.session?.user);
         setIsLoading(false);
         

@@ -13,42 +13,59 @@ import ForgotPasswordConfirm from './ForgotPasswordConfirm.jsx'
 import ForgotPasswordEmail from './ForgotPasswordEmail.jsx'
 import JoinCreateGame from './JoinCreateGame.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx';
+import supabase from './config/supabaseClient.js'
 
 const App = () => {
-  const [isProfileDisabled, setIsProfileDisabled] = useState(true)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [username, setUsername] = useState("")
 
 	useEffect(() => {
-		document.title = "Theme Guesser"
-	}, [])
+    document.title = "Theme Guesser";
+  }, []);
 
-  // useEffect(() => {
-  //   const checkUserSession = async () => {
-  //       const { data, error } = await supabase.auth.getSession();
-  //       if (error) {
-  //           console.error('Error fetching user:', error.message);
-  //           setIsProfileDisabled(true);
-  //           return;
-  //       }
-  //       setIsProfileDisabled(!data.session?.user)
-  //   };
+  useEffect(() => {
+    // Function to check the initial authentication status
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
 
-  //   checkUserSession();
+      if (data) {
+        const response = await fetch(`http://localhost:3000/api/auth/user-profile`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${data.session.access_token}`
+          },
+        });
 
-  //   // Correct subscription syntax
-  //   const { data: { subscription }, } = supabase.auth.onAuthStateChange((_, session) => {
-  //       setIsProfileDisabled(!session?.user);
-  //   });
+        if(!response.ok){
+          throw new Error("Error fetching user profile resource.")
+        }
 
-  //   // Clean up subscription
-  //   return () => {
-  //       if (subscription) subscription.unsubscribe();
-  //   };
-  // }, []);
+        const responseData = await response.json();
+        setUsername(responseData.username)
+      }
+
+      setIsAuthenticated(!!data.session?.user);
+    };
+
+    // Check initial authentication status
+    checkAuth();
+
+    // Set up a listener for authentication state changes
+    const { subscription } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAuthenticated(!!session?.user);
+    });
+
+    // Cleanup the listener on component unmount
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, []);
 
 	return (
     <BrowserRouter>
       <div className="backgroundImage">
-        <Navbar isProfileDisabled={isProfileDisabled} />
+        { isAuthenticated ? (<Navbar isProfileDisabled={false} username={username}/>) : (<Navbar isProfileDisabled={true} username={username}/>)}
         <main className='main-content'>
           <Routes>
             {/* <Route path="/" element={<EmailVerificationHandler/>} /> */}

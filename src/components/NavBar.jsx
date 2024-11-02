@@ -7,12 +7,10 @@ import {Dropdown, DropdownTrigger, DropdownMenu, DropdownItem} from "@nextui-org
 import ProfileIcon from "./ProfileIcon";
 import AlertModal from "./AlertModal";
 
-const NavBar = ({ isProfileDisabled }) => {
+const NavBar = ( {isProfileDisabled = true, username = "Username"} ) => {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertVisible, setAlertVisible] = useState(false)
   const navigate = useNavigate('/login')
-  const [isLoading, setIsLoading] = useState(true);
- 
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut()
@@ -78,7 +76,7 @@ const NavBar = ({ isProfileDisabled }) => {
                   isReadOnly={true}
                 >
                   <p className="font-semibold">Signed in as</p>
-                  <p className="font-semibold">zoey@example.com</p>
+                  <p className="font-semibold">{username}</p>
                 </DropdownItem>
                 <DropdownItem key="edit-profile" onClick={navigateToEditProfile}>Edit Profile</DropdownItem>
                 <DropdownItem key="logout" color="danger" onClick={handleSignOut}>
