@@ -11,16 +11,49 @@
   color: rgba(255, 255, 255, 0.87);
   background-color: #050c9c;
   
-  background-image: url('assets/img/background_drawing.png');
-  background-repeat: repeat;
-  background-size: 50rem;
-  background-position: top left;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  position: relative
 }
+
+.backgroundImage {
+  background-image: url('./assets/img/background_drawing.png');
+  position: relative;
+  background-repeat: repeat;
+  background-size: 50rem;
+  background-position: left;
+  min-height: 100vh; /* 'min-h-screen' in Tailwind */
+  z-index: 0;
+}
+
+.backgroundImage::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: inherit;
+  background-repeat: inherit;
+  background-size: inherit;
+  background-position: inherit;
+  z-index: -1;
+}
+
+.main-content {
+  position: relative; /* Keep this content above the pseudo-element */
+  z-index: 1; /* Bring it above the background */
+}
+
+
+/* Set Nunito Sans as the default font for all text */
+body {
+  font-family: 'Nunito Sans', sans-serif;
+}
+
 
 /* a {
   font-weight: 500;

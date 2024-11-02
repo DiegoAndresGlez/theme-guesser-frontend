@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom"
-import AlertModal from "./AlertModal"
+import AlertModal from "./components/AlertModal"
 import { useState } from "react";
 import { Button, Input, Card, CardHeader, CardBody, Spinner } from "@nextui-org/react";
+import Title from "./components/Title"
 import InfoComponent from "./InfoComponent";
+import supabase from './config/supabaseClient'
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -11,43 +13,56 @@ const Login = () => {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertVisible, setAlertVisible] = useState(false)
   const navigate = useNavigate()
+  let errors = []
+
+  const handleValidations = () => {
+      if (password === "") {
+        errors.push("Password is empty.")
+      }
+
+      if (email === "") {
+        errors.push("Email is empty.")
+      }
+
+      if (errors.length > 0) {
+        throw new Error(errors.join(" ")); // Concatenate error messages with space
+      }
+
+      setAlertMessage(errors)
+  }
 
   const handleLogin = async () => {
     setLoading(true)
     
     try {
-      const response = await fetch("http://localhost:3000/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password })
+      handleValidations()
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
       })
 
-      const data = await response.json() 
-
-      if (!response.ok) {
-        // Get error messages from backend validations and display them
-        const errorMessages = Object.values(data.errors).join(" ") 
-        throw new Error(errorMessages)
+      if (error) {
+        throw new Error(error.message)
       }
 
-      navigate("/signup") // redirect to signup is an example, should point to join-create-game
-
       // Handle successful login, e.g. save token or redirect
-      setAlertMessage(data.message || "Login successful! Redirecting...")
+      setAlertMessage(data.message || "Login successful!")
       setAlertVisible(true)
+      setTimeout(() => {
+        navigate(`/join-create-game`)
+      }, 2000)
 
-    } catch (error) {
-      console.log("Login error: ", error)
 
-      setAlertMessage(error.message || "Failed to log in. Please check your credentials.")
+    } catch(error) {
+      console.log(error)
+      // Get error messages from backend validations and display them
+      setAlertMessage(error.message || "Failed to log in...")
       setAlertVisible(true)
-
-    } finally {
       setLoading(false)
-
     }
+
+    setLoading(false)
   }
 
   const handleCloseAlert = () => {
@@ -56,6 +71,7 @@ const Login = () => {
   }
 
   const handleSignUp = () => {
+    navigate("/signup")
   };
 
   const infoTitle = "About";
@@ -74,6 +90,7 @@ const Login = () => {
       size="lg" />)}
     
     <div className="flex flex-col items-center text-card-text p-4 gap-4">
+      <Title message="Theme Guesser"/>
       <Card className="w-full max-w-sm mt-2 shadow-lg bg-card-background rounded-xl border border-black p-4">
         <CardHeader className="text-2xl flex flex-col items-center text-accent p-0">Welcome!</CardHeader>
         <CardBody className="flex flex-col gap-6 p-4">
@@ -96,7 +113,7 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <p className="text-sm text-accent cursor-pointer hover:underline">Forgot password?</p>
+            <p className="text-sm text-accent cursor-pointer hover:underline" onClick={() => { navigate('/forgot-password')}}>Forgot password?</p>
           </div>
           
           <div className="flex justify-center gap-3">
@@ -110,8 +127,13 @@ const Login = () => {
               className="w-auto text-white rounded-lg font-semibold transition duration-300"
               color="success"
               onClick={handleLogin}
+              disabled={loading}
             >
-              Login
+             {loading ? (
+                <Spinner size="sm" className="mr-1 secondary" />
+              ) : (
+                "Login"
+              )}
             </Button>
           
           </div>

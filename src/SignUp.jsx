@@ -1,26 +1,81 @@
-import React, { useState } from "react";
-import { Button, Input, Card, CardHeader, CardBody } from "@nextui-org/react";
+import { useState } from "react";
+import { Button, Input, Card, CardHeader, CardBody, Spinner } from "@nextui-org/react";
+import { useNavigate } from "react-router-dom";
 import InfoComponent from "./InfoComponent";
+import AlertModal from "./components/AlertModal";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 
 const SignUp = () => {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [username, setUsername] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [alertMessage, setAlertMessage] = useState("")
+  const [alertVisible, setAlertVisible] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
 
-  const handleSignUp = () => {
-    // logic
+  const handleSignUp = async () => {
+    setLoading(true)
+    
+    try {
+      const response = await fetch("http://localhost:3000/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, email, password, confirmPassword })
+      })
+
+      const data = await response.json() 
+
+      if (!response.ok) {
+        console.log(data);
+  
+        let errorMessages = "";
+  
+        if (data.error) {
+          // Single error message
+          errorMessages = data.error;
+        } else if (data.errors) {
+          // Multiple errors, combine them into a single message string
+          errorMessages = Object.values(data.errors).join(" ");
+        } else {
+          // Unexpected error format
+          errorMessages = "An unknown error occurred. Please try again.";
+        }
+  
+        throw new Error(errorMessages);
+      }
+
+      // Handle verifying email
+      
+      navigate("/join-create-game") // redirect to signup is an example, should point to join-create-game
+
+    } catch (error) {
+
+      setAlertMessage(error.message || "Failed to sign up...")
+      setAlertVisible(true)
+
+    } finally {
+      setLoading(false)
+
+    }
   };
 
   const handleBack = () => {
-    // logic for back button
+    navigate('/login') //
   };
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
+
+  const handleCloseAlert = () => {
+    setAlertVisible(false)
+    setAlertMessage("")
+  }
 
   const infoTitle = "About";
   const infoContent = [
@@ -30,6 +85,13 @@ const SignUp = () => {
   ];
 
   return (
+    <>
+    {alertVisible && (< AlertModal 
+      isOpen={alertVisible} 
+      onClose={handleCloseAlert} 
+      message={alertMessage}
+      size="lg" />)}
+
     <div className="flex flex-col items-center text-card-text p-4 gap-4">
       <Card className="w-full max-w-sm mt-2 shadow-lg bg-card-background rounded-xl border border-black p-4">
         <div>
@@ -97,8 +159,13 @@ const SignUp = () => {
               className="w-auto text-white rounded-lg font-semibold transition duration-300"
               color="success"
               onClick={handleSignUp}
+              disabled={loading}
             >
-              Accept
+              {loading ? (
+                <Spinner size="sm" className="mr-1" color="white" />
+              ) : (
+                "Accept"
+              )}
             </Button>
           </div>
         </CardBody>
@@ -106,6 +173,7 @@ const SignUp = () => {
 
       <InfoComponent title={infoTitle} content={infoContent} />
     </div>
+    </>
   );
 };
 
