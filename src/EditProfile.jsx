@@ -79,16 +79,20 @@ const EditProfile = () => {
 
   const handleEmailChangeRequest = async () => {
     try {
-      const token = getSessionToken() 
+      const { data: user } = await supabase.auth.getSession();
+      if (!user) {
+        throw new Error(
+          "Authentication error. Could not retrieve active session. Please try logging in again."
+        );
+      }
 
-      const response = await fetch("http://localhost:3000/api/auth/update-profile-email", {
+      const response = await fetch("http://localhost:3000/api/auth/user-profile/email", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${user.session.access_token}`
         },
         body: JSON.stringify({
-          userId: token.user.id,
           currentEmail: currentEmail,
           newEmail: newEmail,
           currentPassword: currentPasswordForEmailChange 
@@ -122,6 +126,13 @@ const EditProfile = () => {
     setAlertVisible(true)
     setAlertMessage("Email change requested. Please check your current email to validate the change.");
 
+    if (!alertVisible){
+      setTimeout(() => {
+        handleSignOut()
+        navigate(`/login`) // redirect to join-create-game
+      }, 2000)
+    }
+
     } catch (error) {
 
       setAlertMessage(error.message || "An error occured when trying to send your request email change... Please try again later.")
@@ -135,16 +146,20 @@ const EditProfile = () => {
 
   const handlePasswordChange = async () => {
     try {
-      const token = getSessionToken() 
+      const { data: user } = await supabase.auth.getSession();
+      if (!user) {
+        throw new Error(
+          "Authentication error. Could not retrieve active session. Please try logging in again."
+        );
+      }
 
-      const response = await fetch("http://localhost:3000/api/auth/update-profile-password", {
+      const response = await fetch("http://localhost:3000/api/auth/user-profile/password", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${user.session.access_token}`
         },
         body: JSON.stringify({
-          userId: token.user.id,
           currentEmail: currentEmail,
           currentPassword: currentPassword,
           newPassword: newPassword,
@@ -204,10 +219,6 @@ const EditProfile = () => {
             throw error; // Handle sign-out error
         }
 
-        // Clear any user-related state or local storage if necessary
-        localStorage.removeItem('token'); // If you're storing a token
-        // Update your application state to reflect that the user is signed out
-        console.log("User signed out successfully");
         // Optionally, redirect to login page or home page
         window.location.href = '/login'; // Adjust the path as necessary
 
@@ -283,15 +294,6 @@ const EditProfile = () => {
                 placeholder="New Email"
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
-              />
-              <Input
-                isRequired
-                clearable
-                underlined
-                placeholder="Current Password"
-                type={showPassword ? "text" : "password"}
-                value={currentPasswordForEmailChange}
-                onChange={(e) => setCurrentPasswordForEmailChange(e.target.value)}
               />
               
               <div className="flex justify-center gap-3">

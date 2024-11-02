@@ -47,11 +47,10 @@ const Login = () => {
       }
 
       // Handle successful login, e.g. save token or redirect
-      setAlertMessage(data.message || "Login successful! Redirecting...")
+      setAlertMessage(data.message || "Login successful!")
       setAlertVisible(true)
       setTimeout(() => {
-        // navigate(`/edit-profile/${data.user.id}`) // redirect to join-create-game
-        navigate(`/edit-profile`)
+        navigate(`/join-create-game`)
       }, 2000)
 
 
@@ -131,7 +130,7 @@ const Login = () => {
               disabled={loading}
             >
              {loading ? (
-                <Spinner size="sm" className="mr-1" color="white" />
+                <Spinner size="sm" className="mr-1 secondary" />
               ) : (
                 "Login"
               )}
