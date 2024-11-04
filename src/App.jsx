@@ -14,6 +14,7 @@ import ForgotPasswordEmail from './ForgotPasswordEmail.jsx'
 import JoinCreateGame from './JoinCreateGame.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import supabase from './config/supabaseClient.js'
+import ConfirmSignUp from './components/ConfirmSignup.jsx'
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -72,6 +73,7 @@ const App = () => {
             <Route path="/" element={<Login />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
+            <Route path="/confirm-signup" element={<ConfirmSignUp/>}/>
             <Route path="/edit-profile" element={<EditProfile />} />
             <Route path="/forgot-password" element={
               <ProtectedRoute>
