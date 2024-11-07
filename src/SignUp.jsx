@@ -49,10 +49,9 @@ const SignUp = () => {
         throw new Error(errorMessages);
       }
 
-      // Handle verifying email
+      setAlertMessage("Your account has been successfully created! Please check your email to verify your account.")
+      setAlertVisible(true)
       
-      navigate("/join-create-game") // redirect to signup is an example, should point to join-create-game
-
     } catch (error) {
 
       setAlertMessage(error.message || "Failed to sign up...")
