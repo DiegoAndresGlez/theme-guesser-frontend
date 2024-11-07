@@ -1,18 +1,23 @@
+/* eslint-disable no-unused-vars */
 import { useState } from "react";
 import { Button, Input, Card, CardHeader, CardBody, Spinner } from "@nextui-org/react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import AlertModal from "./components/AlertModal";
 import Title from "./components/Title"
 import InfoComponent from "./InfoComponent";
+import io from "socket.io-client";
 
 const JoinCreateGame = () => {
+  const serverUrl = import.meta.env.VITE_SERVER_URL;
   const [gameCode, setGameCode] = useState("");
-  const [generatedCode, setGeneratedCode] = useState("");
+  const [generatedCode, setAccessCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertVisible, setAlertVisible] = useState(false);
   const [copied, setCopied] = useState(false); // New state for copy confirmation
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
+  const socket = io()
 
   const handleJoinGame = () => {
     if (gameCode.trim() === "") {
@@ -24,15 +29,20 @@ const JoinCreateGame = () => {
     console.log("Attempting to join game with code:", gameCode);
   };
 
-  const handleCreateGameRoom = () => {
+  const handleCreateGameRoom = async () => {
     setLoading(true);
 
-    setTimeout(() => {
-      // TODO: code generation logic
-      const newCode = "ABCD1234";
-      setGeneratedCode(newCode);
+    try {
+      const response = await axios.post(`${serverUrl}/api/game/game-room`);
+      const { accessCode } = response.data;
+
+      setAccessCode(accessCode);
+      socket.emit('join-room', accessCode);
+    } catch (error) {
+      console.error('Error creating game room:', error);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const handleCopyCode = () => {
@@ -40,7 +50,7 @@ const JoinCreateGame = () => {
       navigator.clipboard.writeText(generatedCode)
         .then(() => {
           setCopied(true);
-          setTimeout(() => setCopied(false), 2000); // Reset copied state after 2 seconds
+          setTimeout(() => setCopied(false), 2000);
         })
         .catch((err) => console.error("Failed to copy code: ", err));
     }
