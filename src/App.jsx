@@ -12,6 +12,7 @@ import EditProfile from './EditProfile.jsx'
 import ForgotPasswordConfirm from './ForgotPasswordConfirm.jsx'
 import ForgotPasswordEmail from './ForgotPasswordEmail.jsx'
 import JoinCreateGame from './JoinCreateGame.jsx'
+import GameRoom from './GameRoom.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import supabase from './config/supabaseClient.js'
 import ConfirmSignUp from './components/ConfirmSignup.jsx'
@@ -76,6 +77,7 @@ const App = () => {
             <Route path="/confirm-signup" element={<ConfirmSignUp/>}/>
             <Route path="/edit-profile" element={<EditProfile />} />
             <Route path="/forgot-password" element={
+              // TODO: When finished all pages check do protectedroutes for all pages that are only accesible by auth user
               <ProtectedRoute>
                 <ForgotPasswordEmail />
               </ProtectedRoute>
@@ -85,6 +87,7 @@ const App = () => {
               element={<ForgotPasswordConfirm />}
             />
             <Route path="/join-create-game" element={<JoinCreateGame />} />
+            <Route path="/game-room" element={<GameRoom/>} />
           </Routes>
         </main>
       </div>
