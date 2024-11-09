@@ -6,27 +6,33 @@ import axios from "axios";
 import AlertModal from "./components/AlertModal";
 import Title from "./components/Title"
 import InfoComponent from "./InfoComponent";
-import io from "socket.io-client";
+import socketClient from './utils/socket'
 
 const JoinCreateGame = () => {
-  const serverUrl = import.meta.env.VITE_SERVER_URL;
-  const [gameCode, setGameCode] = useState("");
-  const [generatedCode, setAccessCode] = useState("");
+  const serverUrl = import.meta.env.VITE_BACKEND_URL;
+  const [accessCodeField, setAccessCodeField] = useState("")
+  const [accessCode, setAccessCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertVisible, setAlertVisible] = useState(false);
   const [copied, setCopied] = useState(false); // New state for copy confirmation
-  // const navigate = useNavigate();
-  const socket = io()
+  const navigate = useNavigate();
+  const socket = socketClient
 
   const handleJoinGame = () => {
-    if (gameCode.trim() === "") {
+    if (accessCodeField.trim() === "") {
       setAlertMessage("Please enter a game room code to join.");
       setAlertVisible(true);
       return;
     }
 
-    console.log("Attempting to join game with code:", gameCode);
+    console.log("Attempting to join game with code:", accessCode);
+
+    socket.on('error', (error) => {
+      setAlertMessage(error);
+      setAlertVisible(true)
+    });
+    // navigate('/game-room')
   };
 
   const handleCreateGameRoom = async () => {
@@ -37,7 +43,7 @@ const JoinCreateGame = () => {
       const { accessCode } = response.data;
 
       setAccessCode(accessCode);
-      socket.emit('join-room', accessCode);
+      // navigate('/game-room')
     } catch (error) {
       console.error('Error creating game room:', error);
     } finally {
@@ -45,9 +51,10 @@ const JoinCreateGame = () => {
     }
   };
 
+
   const handleCopyCode = () => {
-    if (generatedCode) {
-      navigator.clipboard.writeText(generatedCode)
+    if (accessCode) {
+      navigator.clipboard.writeText(accessCode)
         .then(() => {
           setCopied(true);
           setTimeout(() => setCopied(false), 2000);
@@ -91,13 +98,13 @@ const JoinCreateGame = () => {
               underlined
               type="text"
               placeholder="Enter Game Room Code"
-              value={gameCode}
-              onChange={(e) => setGameCode(e.target.value)}
+              value={accessCodeField}
+              onChange={(e) => setAccessCodeField(e.target.value)}
             />
 
-            {generatedCode && (
+            {accessCode && (
               <div className="text-center text-accent">
-                Your Game Room Code: <strong>{generatedCode}</strong>
+                Your Game Room Code: <strong>{accessCode}</strong>
                 <Button
                   auto
                   size="sm"
