@@ -1,76 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardBody } from "@nextui-org/react";
-import socket from '../../utils/socket';
 
 const GameRoomPlayers = ({ players, currentDrawerUsername }) => {
-    // const [players, setPlayers] = useState([]);
-
-    // useEffect(() => {
-    //     // Listen for room updates which include player list changes
-    //     socket.on('room-updated', (roomData) => {
-    //         if (roomData.players) {
-    //             setPlayers(roomData.players.map(player => ({
-    //                 username: player.username,
-    //                 score: player.score || 0,
-    //                 isDrawing: roomData.gameState?.currentDrawer === player.id,
-    //                 isHost: player.isHost
-    //             })));
-    //         }
-    //     });
-
-    //     // Listen for new player joins
-    //     socket.on('player-joined', (playerData) => {
-    //         setPlayers(prevPlayers => {
-    //             // Check if player already exists
-    //             if (prevPlayers.some(p => p.id === playerData.id)) {
-    //                 return prevPlayers;
-    //             }
-    //             return [...prevPlayers, {
-    //                 id: playerData.id,
-    //                 name: playerData.username,
-    //                 score: 0,
-    //                 isDrawing: false,
-    //                 isHost: playerData.isHost
-    //             }];
-    //         });
-    //     });
-
-    //     // Listen for player disconnections
-    //     socket.on('player-left', (playerId) => {
-    //         setPlayers(prevPlayers => prevPlayers.filter(p => p.id !== playerId));
-    //     });
-
-    //     // Listen for score updates
-    //     socket.on('score-updated', ({ playerId, newScore }) => {
-    //         setPlayers(prevPlayers => 
-    //             prevPlayers.map(player => 
-    //                 player.id === playerId 
-    //                     ? { ...player, score: newScore }
-    //                     : player
-    //             )
-    //         );
-    //     });
-
-    //     // Listen for drawer changes
-    //     socket.on('drawer-changed', (drawerId) => {
-    //         setPlayers(prevPlayers => 
-    //             prevPlayers.map(player => ({
-    //                 ...player,
-    //                 isDrawing: player.id === drawerId
-    //             }))
-    //         );
-    //     });
-
-    //     // Cleanup function
-    //     return () => {
-    //         socket.off('room-updated');
-    //         socket.off('player-joined');
-    //         socket.off('player-left');
-    //         socket.off('score-updated');
-    //         socket.off('drawer-changed');
-    //     };
-    // }, []);
-
     return (
       <div className="w-80 space-y-2">
         {/* Player Cards */}

@@ -1,9 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardBody } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
-import socket from '../../utils/socket'
-import { useNavigate } from 'react-router-dom';
-
+import { GameRoomState, GameRoomStateUtils } from '../../utils/GameRoomState';
 
 const GameRoomHeader = ({
   roomCode,
@@ -12,15 +10,15 @@ const GameRoomHeader = ({
   onStartGame,
   roundNumber,
   gameState,
-  onLeaveGame // Add this prop
+  onLeaveGame
 }) => {
 
     return (
         <>
-        <h1 className="text-2xl font-bold">{}</h1>
+        <h1 className="text-heading text-2xl font-bold">Theme Guesser</h1>
 
         <div className="flex gap-4 mb-4">
-          {isHost && gameState === 'WAITING_FOR_HOST' && (
+          {isHost && gameState === GameRoomState.WAITING_FOR_HOST.name && (
             <Button onClick={onStartGame} className="w-80 h-20">START</Button>
           )}
   
@@ -29,12 +27,13 @@ const GameRoomHeader = ({
             <CardBody>
               <div className="flex justify-between items-center">
                 <div className="space-y-1">
-                  <p className="text-2xl text-gray-500">Room Code: #{roomCode}</p>
+                  <p className="text-xm text-gray-500">{GameRoomStateUtils.getStateLabel(gameState)}</p>
+                  <p className="text-xl text-gray-500">Room Code: #{roomCode}</p>
                 </div>
                 <div className="flex gap-4 items-center">
                   <div className="text-center">
                     <p className="text-sm text-gray-500">Round</p>
-                    <p className="text-lg font-semibold">{roundNumber}/3</p>
+                    <p className="text-lg font-semibold">{roundNumber || 0}/3</p>
                   </div>
                   <div className="text-center">
                     <p className="text-sm text-gray-500">Time Left</p>

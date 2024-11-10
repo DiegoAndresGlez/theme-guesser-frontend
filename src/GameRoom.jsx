@@ -1,6 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
-import { Card, CardBody, CardHeader } from "@nextui-org/react";
-import { Input, Button, Divider } from "@nextui-org/react";
+import { useState, useEffect } from 'react';
 import socket from './utils/socket'
 import GameRoomCanvas from './components/game-room-page/GameRoomCanvas';
 import GameRoomChat from './components/game-room-page/GameRoomChat';
@@ -17,12 +15,9 @@ const GameRoom = () => {
   const [timeLeft, setTimeLeft] = useState(60);
   const [error, setError] = useState(null)
 
-  
-
   useEffect(() => {
     // Get player info from localStorage
     const playerInfo = JSON.parse(localStorage.getItem('playerInfo'))
-
 
     if (!playerInfo) {
       // TODO: Alert message
@@ -31,97 +26,155 @@ const GameRoom = () => {
       return
     }
 
+    const handleRoomJoined = (roomData) => {
+      setRoom(roomData);
+      const player = roomData.players.find(p => p.username === playerInfo.username);
+      setCurrentPlayer(player);
+      localStorage.setItem('playerInfo', JSON.stringify({
+        ...playerInfo,
+        isHost: player.isHost
+      }));
+    }
+
+    const handleRoomUpdated = (roomData) => {
+      setRoom(roomData);
+      const updatedPlayer = roomData.players.find(p => p.username === playerInfo.username);
+      if (updatedPlayer) {
+        setCurrentPlayer(updatedPlayer);
+        // Update localStorage to reflect any changes in host status
+        localStorage.setItem('playerInfo', JSON.stringify({
+          ...playerInfo,
+          isHost: updatedPlayer.isHost
+        }));
+      }
+    }
+    
+    const handleHostChanged = ({ newHost }) => {
+      setRoom(prev => {
+        if (!prev) return null;
+        const updatedPlayers = prev.players.map(p => ({
+          ...p,
+          isHost: p.username === newHost ? "1" : "0"
+        }));
+        return { ...prev, players: updatedPlayers };
+      });
+
+      // Update current player's host status if they are the new host
+      if (playerInfo.username === newHost) {
+        setCurrentPlayer(prev => ({ ...prev, isHost: "1" }));
+        localStorage.setItem('playerInfo', JSON.stringify({
+          ...playerInfo,
+          isHost: "1"
+        }));
+      }
+    };
+
+    const handlePlayerLeft = ({ username, updatedRoom }) => {
+      setRoom(updatedRoom);
+    };
+
+    const handleRoomDeleted = () => {
+      localStorage.removeItem('playerInfo');
+      navigate('/join-create-game');
+    }
+
+    const handleGameStateChanged = (newState) => {
+      console.log('Game state changed:', newState);
+      setRoom(prev => {
+        if (!prev) return null;
+        
+        switch (newState) {
+          case GameRoomState.WAITING_FOR_HOST:
+            return {
+              ...prev,
+              gameState: newState,
+              currentSecretWord: "",
+              roundNumber: 0
+            };
+            
+          case GameRoomState.CHOOSING_THEME:
+            return {
+              ...prev,
+              gameState: newState,
+              themeOptions: prev.themeOptions || [] // Preserve theme options if they exist
+            };
+            
+          case GameRoomState.GENERATING_SECRET_WORDS:
+            return {
+              ...prev,
+              gameState: newState,
+              currentSecretWord: "" // Clear any previous word
+            };
+            
+          case GameRoomState.CHOOSING_WORD:
+            return {
+              ...prev,
+              gameState: newState,
+              wordOptions: prev.wordOptions || [] // Preserve word options if they exist
+            };
+            
+          case GameRoomState.DRAWING:
+            return {
+              ...prev,
+              gameState: newState,
+              roundStartTime: Date.now() // Optional: track when drawing started
+            };
+            
+          case GameRoomState.ENDING:
+            return {
+              ...prev,
+              gameState: newState,
+              currentSecretWord: "", // Clear the word when ending
+              roundNumber: prev.roundNumber // Preserve the round number for final score
+            };
+            
+          default:
+            console.warn('Unknown game state:', newState);
+            return { ...prev, gameState: newState };
+        }
+      });
+    };
+
+    const handleError = (errorMessage) => {
+      setError(errorMessage)
+      localStorage.removeItem('playerInfo')
+      window.alert(errorMessage)
+      navigate('/join-create-game')
+    }
+
     socket.connect()
 
     // Emitting to join room
     socket.emit('join-room', playerInfo.roomCode, playerInfo.username)
 
-    const handleRoomJoined = (roomData) => {
-      setRoom(roomData)
-      // Find current player using username as the unique identifier
-      const player = roomData.players.find(p => p.username === playerInfo.username)
-      setCurrentPlayer(player)
-    }
-
-    const handleRoomUpdated = (roomData) => {
-      setRoom(roomData);
-      // Update current player data if needed
-      const updatedPlayer = roomData.players.find(p => p.username === playerInfo.username);
-      if (updatedPlayer) {
-        setCurrentPlayer(updatedPlayer);
-      }
-    }
-
-    // Simply update the room's gameState to the new state
-    const handleGameStateChanged = (newState) => {
-      setRoom(prev => prev ? { ...prev, gameState: newState } : null);
-    };
-
-    const handleError = (errorMessage) => {
-      // setError(errorMessage)
-      // if (errorMessage === 'Room not found') {
-      //   localStorage.removeItem('playerInfo')
-      //   window.alert(errorMessage)
-      //   navigate('/join-create-game')
-      // }
-    }
-
     // Socket event listeners
-    socket.on('player-left', ({ username, updatedRoom }) => {
-      setRoom(updatedRoom)
-      // TODO: Toast notification maybe or chat left message??
-    })
-
-    socket.on('host-changed', ({ newHost }) => {
-      setRoom(prev => {
-        if (!prev) return null
-        return {
-          ...prev,
-          players: prev.players.map(p => ({
-            ...p,
-            isHost: p.username === newHost ? "1" : "0"
-          }))
-        }
-      })
-      // TODO: Toast or chat notfication for new host.
-    })
-
-    socket.on('room-deleted', () => {
-      // TODO: Toast or chat notification for room has been closed
-      console.log('Room has been closed...')
-      navigate('/join-create-game')
-    })
-
-    socket.on('game-stopped', ({ reason }) => {
-      // TODO: Toast or chat notification for stopped game for x reason
-    })
-
     socket.on('room-joined', handleRoomJoined);
     socket.on('room-updated', handleRoomUpdated);
+    socket.on('host-changed', handleHostChanged);
+    socket.on('player-left', handlePlayerLeft);
+    socket.on('room-deleted', handleRoomDeleted)
     socket.on('game-state-changed', handleGameStateChanged);
     socket.on('timer-update', setTimeLeft);
     socket.on('error', handleError);
 
     // Cleanup function
     return () => {
-      // Important: Emit leave-room when component unmounts
+      // Unmount when disconnected
       if (playerInfo) {
         socket.emit('leave-room', {
           accessCode: playerInfo.roomCode,
           username: playerInfo.username
         });
       }
-
-      socket.off('player-left')
-      socket.off('host-changed')
-      socket.off('room-deleted')
-      socket.off('game-stopped')
-
-      socket.off('room-joined', handleRoomJoined);
-      socket.off('room-updated', handleRoomUpdated);
-      socket.off('game-started', handleGameStateChanged);
-      socket.off('timer-update', setTimeLeft);
-      socket.off('error', handleError);
+      
+      socket.off('room-joined');
+      socket.off('room-updated');
+      socket.off('host-changed');
+      socket.off('player-left');
+      socket.off('room-deleted');
+      socket.off('game-state-changed');
+      socket.off('timer-update');
+      socket.off('error');
       socket.disconnect();
     };
   }, [navigate]);
@@ -151,14 +204,24 @@ const GameRoom = () => {
       navigate('/join-create-game'); // Navigate anyway in case of error
     }
   };
+  
 
   if (error) {
-    return <div className="text-center text-red-600 mt-8">{error}</div>;
+    <div className="flex h-screen items-center justify-center">
+      <div className="text-center text-red-600">{error}</div>
+    </div>;
   }
 
   const isDrawer = currentPlayer?.role === "drawer";
   const isHost = currentPlayer?.isHost === "1";
-  const canDraw = isDrawer && room?.gameState === GameRoomState.DRAWING;
+  const canDraw = isDrawer && room?.gameState === GameRoomState.DRAWING.name;
+
+  console.log('Game room state info: ', {
+    isHost,
+    currentPlayer,
+    gameState: room?.gameState,
+    roomData: room,
+  })
 
   return (
     <div className="w-full min-h-screen p-4">
