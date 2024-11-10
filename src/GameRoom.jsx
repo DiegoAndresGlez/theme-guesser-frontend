@@ -1,83 +1,116 @@
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardBody, CardHeader } from "@nextui-org/react";
 import { Input, Button, Divider } from "@nextui-org/react";
-import socketClient from './utils/socket'
+import socket from './utils/socket'
 import GameRoomCanvas from './components/game-room-page/GameRoomCanvas';
 import GameRoomChat from './components/game-room-page/GameRoomChat';
 import GameRoomHeader from './components/game-room-page/GameRoomHeader';
 import GameRoomPlayers from './components/game-room-page/GameRoomPlayers';
-import { string } from 'prop-types';
-// import { GameRoomChat } from './components/game-room-page/GameRoomChat';
-// import { GameRoomPlayers } from './components/game-room-page/GameRoomPlayers';
+import { useNavigate } from 'react-router-dom';
 
-const GameRoom = ({ accessCode }) => {
-  const socketRef = useRef(null)
+const GameRoom = () => {
 
-  const [room, setRoom] = useState(null);
+  const navigate = useNavigate()
+  const [room, setRoom] = useState(null)
   const [currentPlayer, setCurrentPlayer] = useState(null);
   const [timeLeft, setTimeLeft] = useState(60);
+  const [error, setError] = useState(null)
 
   useEffect(() => {
-    socketRef.current = socketClient
+    // Get player info from localStorage
+    const playerInfo = JSON.parse(localStorage.getItem('playerInfo'))
 
-    socketRef.current.emit('join-game', accessCode)
+    if (!playerInfo) {
+      // TODO: Alert message
+      console.error('Could not retrieve player info... Returning to join-create game page...')
+      return
+    }
 
-    socketRef.current.on('connect', () => {
-      console.log(`Connected to server:`, socketRef.current)
+    socket.connect()
+
+    // Emitting to join room
+    socket.emit('join-room', playerInfo.roomCode)
+
+    // Events to listen on client side (react)
+    socket.on('room-joined', (roomData) => {
+      setRoom(roomData)
+      setCurrentPlayer(roomData.players.find(p => p.id === socket.id))
     })
 
-    socketRef.current.on('connect-error', (error) => {
-      console.error('Connection error:', error);
+    socket.on('room-updated', (roomData) => {
+      setRoom(roomData)
+    })
+
+    socket.on('game-started', (gameData) => {
+      setRoom(prev => ({ ...prev, gameState: gameData }));
     });
 
-    socketRef.current.on('disconnect', (reason) => {
-      console.log('Disconnected:', reason);
+    socket.on('timer-update', (time) => {
+      setTimeLeft(time);
+    });
+
+    socket.on('error', (errorMessage) => {
+      setError(errorMessage);
+      // Navigate away if it's a fatal error
+      if (errorMessage === 'Room not found') {
+        localStorage.removeItem('playerInfo');
+        navigate('/join-game-room');
+      }
     });
 
     return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect()
-        socketRef.current = null
+      if (socket) {
+        socket.disconnect()
       }
     }
 
-  }, [socketRef]);
+  }, [socket]);
 
   const connectSocket = () => {
-    if (!socketClient.connected) {
-      socketClient.connect();  // Only connect if the socket is not already connected
+    if (!socket.connected) {
+      socket.connect();  // Only connect if the socket is not already connected
     }
   };
 
   const handleStartGame = () => {
-    if (room?.gameState.hostId === playerId) {
-      socketRef.emit('start-game', { accessCode });
+    const playerInfo = JSON.parse(localStorage.getItem('playerInfo'));
+    if (playerInfo?.isHost) {
+      socket.emit('start-game', { roomCode: playerInfo.roomCode });
     }
   };
 
-  const handleLeaveGame = () => {
-    socketRef?.emit('leave-room', { accessCode, playerId });
-  };
+  if (error) {
+    return <div className="text-center text-red-600 mt-8">{error}</div>;
+  }
 
   return (
     <div className="w-full min-h-screen p-4">
-      <GameRoomHeader/>
+      <GameRoomHeader
+        roomCode={room?.roomCode}
+        timeLeft={timeLeft}
+        isHost={currentPlayer?.isHost}
+        onStartGame={handleStartGame}
+      />
 
       {/* Main Game Area */}
       <div className="flex gap-4">
         {/* Player scores */}
-        <GameRoomPlayers/>
+        <GameRoomPlayers
+          players={room?.players || []}
+        />
         {/* Drawing Canvas Component */}
-        <GameRoomCanvas/>
+        <GameRoomCanvas
+          isDrawing={room?.gameState?.currentDrawer === socket.id}
+          word={room?.gameState?.currentWord}
+        />
         {/* Chat Area COMPONENT */}
-        <GameRoomChat/>
+        <GameRoomChat
+          roomCode={room?.code}
+          playerName={currentPlayer?.username}
+        />
       </div>
     </div>
   );
 };
-
-GameRoom.propTypes = {
-  accessCode: string,
-}
 
 export default GameRoom;

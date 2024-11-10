@@ -86,7 +86,7 @@ const App = () => {
               path="/forgot-password-confirm"
               element={<ForgotPasswordConfirm />}
             />
-            <Route path="/join-create-game" element={<JoinCreateGame />} />
+            <Route path="/join-create-game" username={username} element={<JoinCreateGame />} />
             <Route path="/game-room" element={<GameRoom/>} />
           </Routes>
         </main>

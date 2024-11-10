@@ -8,21 +8,8 @@ const socket = io(URL, {
     reconnection: true, // Enable reconnection
     reconnectionAttempts: 5, // Max reconnection attempts
     reconnectionDelay: 1000, // Delay between reconnection attempts (in ms)
-    reconnectionDelayMax: 5000, // Max delay between reconnection attempts
     //maybe add
         //query: ???
-});
-
-socket.on("connect", () => {
-  console.log(`Connected to server:`, socket.id);
-});
-
-socket.on("connect-error", (error) => {
-  console.error("Connection error:", error);
-});
-
-socket.on("disconnect", (reason) => {
-  console.log("Disconnected:", reason);
 });
 
 export default socket

@@ -6,55 +6,79 @@ import axios from "axios";
 import AlertModal from "./components/AlertModal";
 import Title from "./components/Title"
 import InfoComponent from "./InfoComponent";
-import socketClient from './utils/socket'
+import socket from './utils/socket'
 
 const JoinCreateGame = () => {
   const serverUrl = import.meta.env.VITE_BACKEND_URL;
-  const [accessCodeField, setAccessCodeField] = useState("")
-  const [accessCode, setAccessCode] = useState("");
+  const [roomCodeField, setRoomCodeField] = useState("")
+  const [roomCode, setRoomCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertVisible, setAlertVisible] = useState(false);
+  const [playerName, setPlayerName] = useState("Username") // pass in authenticated username
   const [copied, setCopied] = useState(false); // New state for copy confirmation
   const navigate = useNavigate();
-  const socket = socketClient
-
-  const handleJoinGame = () => {
-    if (accessCodeField.trim() === "") {
-      setAlertMessage("Please enter a game room code to join.");
-      setAlertVisible(true);
-      return;
-    }
-
-    console.log("Attempting to join game with code:", accessCode);
-
-    socket.on('error', (error) => {
-      setAlertMessage(error);
-      setAlertVisible(true)
-    });
-    // navigate('/game-room')
-  };
 
   const handleCreateGameRoom = async () => {
+    if (!playerName.trim()){
+      alertMessage("You are not authenticated. Please try logging in.")
+      alertVisible(true)
+      return
+    }
+
     setLoading(true);
 
     try {
       const response = await axios.post(`${serverUrl}/api/game/game-room`);
       const { accessCode } = response.data;
+      setRoomCode(accessCode);
 
-      setAccessCode(accessCode);
-      // navigate('/game-room')
+      localStorage.setItem('playerInfo', JSON.stringify({
+        username: playerName, // TODO: Set this username in user item in auth useEffect for easy access
+        isHost: true,
+        roomCode: accessCode,
+      }))
+
+      navigate(`/game-room`)
     } catch (error) {
       console.error('Error creating game room:', error);
-    } finally {
-      setLoading(false);
+    }
+    setLoading(false);
+  };
+
+  const handleJoinGame = () => {
+    if (!playerName.trim()) {
+      alertMessage("You are not authenticated. Please try logging in.")
+      setAlertVisible(true);
+    }
+
+    if (!roomCodeField.trim()) {
+      setAlertMessage("Please enter a game room code to join.");
+      setAlertVisible(true);
+      return;
+    }
+
+    setLoading(true)
+
+    try {
+      // TODO: Check if it exists first?
+
+      localStorage.setItem('playerInfo', JSON.stringify({
+        name: playerName,
+        isHost: false,
+        roomCode: roomCodeField
+      }))
+
+      navigate(`/game-room`)
+    } catch (error) {
+      console.error('Error joining game:', error)
+      setLoading(false)
     }
   };
 
-
   const handleCopyCode = () => {
-    if (accessCode) {
-      navigator.clipboard.writeText(accessCode)
+    if (roomCode) {
+      navigator.clipboard.writeText(roomCode)
         .then(() => {
           setCopied(true);
           setTimeout(() => setCopied(false), 2000);
@@ -98,13 +122,13 @@ const JoinCreateGame = () => {
               underlined
               type="text"
               placeholder="Enter Game Room Code"
-              value={accessCodeField}
-              onChange={(e) => setAccessCodeField(e.target.value)}
+              value={roomCodeField}
+              onChange={(e) => setRoomCodeField(e.target.value)}
             />
 
-            {accessCode && (
+            {roomCode && (
               <div className="text-center text-accent">
-                Your Game Room Code: <strong>{accessCode}</strong>
+                Your Game Room Code: <strong>{roomCode}</strong>
                 <Button
                   auto
                   size="sm"
