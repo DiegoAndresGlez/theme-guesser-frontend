@@ -17,9 +17,12 @@ const GameRoom = () => {
   const [timeLeft, setTimeLeft] = useState(60);
   const [error, setError] = useState(null)
 
+  
+
   useEffect(() => {
     // Get player info from localStorage
     const playerInfo = JSON.parse(localStorage.getItem('playerInfo'))
+
 
     if (!playerInfo) {
       // TODO: Alert message
@@ -64,6 +67,35 @@ const GameRoom = () => {
     }
 
     // Socket event listeners
+    socket.on('player-left', ({ username, updatedRoom }) => {
+      setRoom(updatedRoom)
+      // TODO: Toast notification maybe or chat left message??
+    })
+
+    socket.on('host-changed', ({ newHost }) => {
+      setRoom(prev => {
+        if (!prev) return null
+        return {
+          ...prev,
+          players: prev.players.map(p => ({
+            ...p,
+            isHost: p.username === newHost ? "1" : "0"
+          }))
+        }
+      })
+      // TODO: Toast or chat notfication for new host.
+    })
+
+    socket.on('room-deleted', () => {
+      // TODO: Toast or chat notification for room has been closed
+      console.log('Room has been closed...')
+      navigate('/join-create-game')
+    })
+
+    socket.on('game-stopped', ({ reason }) => {
+      // TODO: Toast or chat notification for stopped game for x reason
+    })
+
     socket.on('room-joined', handleRoomJoined);
     socket.on('room-updated', handleRoomUpdated);
     socket.on('game-state-changed', handleGameStateChanged);
@@ -72,6 +104,19 @@ const GameRoom = () => {
 
     // Cleanup function
     return () => {
+      // Important: Emit leave-room when component unmounts
+      if (playerInfo) {
+        socket.emit('leave-room', {
+          accessCode: playerInfo.roomCode,
+          username: playerInfo.username
+        });
+      }
+
+      socket.off('player-left')
+      socket.off('host-changed')
+      socket.off('room-deleted')
+      socket.off('game-stopped')
+
       socket.off('room-joined', handleRoomJoined);
       socket.off('room-updated', handleRoomUpdated);
       socket.off('game-started', handleGameStateChanged);
@@ -89,6 +134,24 @@ const GameRoom = () => {
     }
   };
 
+  // Handle manual leave (e.g., when clicking a leave button)
+  const handleLeaveGame = () => {
+    try {
+      const playerInfo = JSON.parse(localStorage.getItem('playerInfo'));
+      if (playerInfo) {
+        socket.emit('leave-room', {
+          accessCode: playerInfo.roomCode,
+          username: playerInfo.username
+        });
+        localStorage.removeItem('playerInfo'); // Clear player info
+        navigate('/join-create-game');
+      }
+    } catch (error) {
+      console.error('Error leaving game:', error);
+      navigate('/join-create-game'); // Navigate anyway in case of error
+    }
+  };
+
   if (error) {
     return <div className="text-center text-red-600 mt-8">{error}</div>;
   }
@@ -100,12 +163,13 @@ const GameRoom = () => {
   return (
     <div className="w-full min-h-screen p-4">
       <GameRoomHeader
-        roomCode={room?.roomCode}
+        roomCode={room?.accessCode}
         timeLeft={timeLeft}
         isHost={isHost}
         onStartGame={handleStartGame}
         roundNumber={room?.roundNumber}
         gameState={room?.gameState}
+        onLeaveGame={handleLeaveGame}
       />
 
       <div className="flex gap-4">

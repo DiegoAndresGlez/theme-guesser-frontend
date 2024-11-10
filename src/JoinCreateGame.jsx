@@ -27,14 +27,21 @@ const JoinCreateGame = () => {
   const [isLoadingJoin, setIsLoadingJoin] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertVisible, setAlertVisible] = useState(false);
-  const [playerName, setPlayerName] = useState("Username") // pass in authenticated username
+  const [playerName, setPlayerName] = useState(Math.random().toString(36).substr(2, 6).toUpperCase().toString()) // pass in authenticated username
   const [copied, setCopied] = useState(false); // New state for copy confirmation
   const navigate = useNavigate();
 
+  // Just generate temporary unique username
+  const generateUsername = () => {
+    const username = Math.random().toString(36).substr(2, 6).toUpperCase();
+    console.error(username)
+    setPlayerName(username.toString())
+  };
+
   const handleCreateGameRoom = async () => {
     if (!playerName.trim()){
-      alertMessage("You are not authenticated. Please try logging in.")
-      alertVisible(true)
+      setAlertMessage("You are not authenticated. Please try logging in.")
+      setAlertVisible(true)
       return
     }
 
@@ -68,7 +75,7 @@ const JoinCreateGame = () => {
 
   const handleJoinGame = async () => {
     if (!playerName.trim()) {
-      alertMessage("You are not authenticated. Please try logging in.")
+      setAlertMessage("You are not authenticated. Please try logging in.")
       setAlertVisible(true);
     }
 
