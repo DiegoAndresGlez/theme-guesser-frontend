@@ -8,11 +8,23 @@ import Title from "./components/Title"
 import InfoComponent from "./InfoComponent";
 import socket from './utils/socket'
 
+/**
+ * @typedef {Object} Player
+ * @property {string} id // probably not going to be used, as username is already a unique identifier
+ * @property {string} username
+ * @property {string} role // "drawer" "guesser" "spectator"
+ * @property {string} isHost // 1 is true 0 is false (best way to save booleans in Redis)
+ * @property {number} score
+ * @property {string} joinedAt
+ * @property {Promise<Player>}
+ */
+
 const JoinCreateGame = () => {
   const serverUrl = import.meta.env.VITE_BACKEND_URL;
   const [roomCodeField, setRoomCodeField] = useState("")
   const [roomCode, setRoomCode] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isLoadingJoin, setIsLoadingJoin] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertVisible, setAlertVisible] = useState(false);
   const [playerName, setPlayerName] = useState("Username") // pass in authenticated username
@@ -30,12 +42,20 @@ const JoinCreateGame = () => {
 
     try {
       const response = await axios.post(`${serverUrl}/api/game/game-room`);
+
+      if(!response.ok){
+        setAlertMessage(`Error when trying to create game room ${roomCodeField}. Please try again later.`);
+        setAlertVisible(true);
+      }
+
       const { accessCode } = response.data;
       setRoomCode(accessCode);
 
       localStorage.setItem('playerInfo', JSON.stringify({
         username: playerName, // TODO: Set this username in user item in auth useEffect for easy access
-        isHost: true,
+        role: "drawer",
+        isHost: 1,
+        score: 0,
         roomCode: accessCode,
       }))
 
@@ -46,34 +66,44 @@ const JoinCreateGame = () => {
     setLoading(false);
   };
 
-  const handleJoinGame = () => {
+  const handleJoinGame = async () => {
     if (!playerName.trim()) {
       alertMessage("You are not authenticated. Please try logging in.")
       setAlertVisible(true);
     }
 
     if (!roomCodeField.trim()) {
-      setAlertMessage("Please enter a game room code to join.");
+      setAlertMessage(`A game room code is required to join a game.`);
       setAlertVisible(true);
       return;
     }
 
-    setLoading(true)
+    if (roomCodeField.trim().length > 6){
+      setAlertMessage(`Game room code is above 6 characters. Please enter a valid game room code.`);
+      setAlertVisible(true);
+      return
+    }
+
+    setIsLoadingJoin(true)
 
     try {
-      // TODO: Check if it exists first?
+      const response = await axios.get(`${serverUrl}/api/game/game-room/${roomCodeField}`);
 
       localStorage.setItem('playerInfo', JSON.stringify({
-        name: playerName,
-        isHost: false,
-        roomCode: roomCodeField
+        username: playerName, // TODO: Set this username in another user item in auth useEffect for easy access and save that to here
+        role: "drawer",
+        isHost: 0,
+        score: 0,
+        roomCode: roomCodeField,
       }))
 
       navigate(`/game-room`)
     } catch (error) {
+      setAlertMessage(`Error when trying to join game room: ${roomCodeField}. Please try again later.`);
+      setAlertVisible(true);
       console.error('Error joining game:', error)
-      setLoading(false)
     }
+    setIsLoadingJoin(false)
   };
 
   const handleCopyCode = () => {
@@ -146,9 +176,13 @@ const JoinCreateGame = () => {
                 className="w-auto text-white rounded-lg font-semibold transition duration-300"
               color="success"
                 onClick={handleJoinGame}
-                disabled={loading}
+                disabled={isLoadingJoin}
               >
-                Join Game
+                {isLoadingJoin ? (
+                  <Spinner size="sm" className="mr-1 secondary" />
+                ) : (
+                  "Join Game"
+                )}
               </Button>
               <span className="text-gray-500 font-semibold">OR</span>
               <Button

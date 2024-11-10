@@ -1,8 +1,11 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import supabase from './config/supabaseClient.js'
 
 /* Components */
 import Navbar from './components/NavBar.jsx'
+import ProtectedRoute from './components/ProtectedRoute.jsx';
+import ConfirmSignUp from './components/ConfirmSignup.jsx'
 
 /* Pages */
 import Login from './Login.jsx'
@@ -13,9 +16,6 @@ import ForgotPasswordConfirm from './ForgotPasswordConfirm.jsx'
 import ForgotPasswordEmail from './ForgotPasswordEmail.jsx'
 import JoinCreateGame from './JoinCreateGame.jsx'
 import GameRoom from './GameRoom.jsx'
-import ProtectedRoute from './components/ProtectedRoute.jsx';
-import supabase from './config/supabaseClient.js'
-import ConfirmSignUp from './components/ConfirmSignup.jsx'
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)

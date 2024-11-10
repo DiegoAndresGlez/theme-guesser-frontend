@@ -12,4 +12,10 @@ const socket = io(URL, {
         //query: ???
 });
 
+export const connectWithAuth = (playerInfo) => {
+  // Set auth data before connecting
+  socket.auth = { playerInfo: JSON.stringify(playerInfo) };
+  socket.connect();
+};
+
 export default socket

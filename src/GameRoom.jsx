@@ -7,6 +7,7 @@ import GameRoomChat from './components/game-room-page/GameRoomChat';
 import GameRoomHeader from './components/game-room-page/GameRoomHeader';
 import GameRoomPlayers from './components/game-room-page/GameRoomPlayers';
 import { useNavigate } from 'react-router-dom';
+import { GameRoomState } from './utils/GameRoomState';
 
 const GameRoom = () => {
 
@@ -22,59 +23,68 @@ const GameRoom = () => {
 
     if (!playerInfo) {
       // TODO: Alert message
-      console.error('Could not retrieve player info... Returning to join-create game page...')
+      window.alert('Could not retrieve player info...')
+      navigate('/join-create-game')
       return
     }
 
     socket.connect()
 
     // Emitting to join room
-    socket.emit('join-room', playerInfo.roomCode)
+    socket.emit('join-room', playerInfo.roomCode, playerInfo.username)
 
-    // Events to listen on client side (react)
-    socket.on('room-joined', (roomData) => {
+    const handleRoomJoined = (roomData) => {
       setRoom(roomData)
-      setCurrentPlayer(roomData.players.find(p => p.id === socket.id))
-    })
+      // Find current player using username as the unique identifier
+      const player = roomData.players.find(p => p.username === playerInfo.username)
+      setCurrentPlayer(player)
+    }
 
-    socket.on('room-updated', (roomData) => {
-      setRoom(roomData)
-    })
-
-    socket.on('game-started', (gameData) => {
-      setRoom(prev => ({ ...prev, gameState: gameData }));
-    });
-
-    socket.on('timer-update', (time) => {
-      setTimeLeft(time);
-    });
-
-    socket.on('error', (errorMessage) => {
-      setError(errorMessage);
-      // Navigate away if it's a fatal error
-      if (errorMessage === 'Room not found') {
-        localStorage.removeItem('playerInfo');
-        navigate('/join-game-room');
+    const handleRoomUpdated = (roomData) => {
+      setRoom(roomData);
+      // Update current player data if needed
+      const updatedPlayer = roomData.players.find(p => p.username === playerInfo.username);
+      if (updatedPlayer) {
+        setCurrentPlayer(updatedPlayer);
       }
-    });
+    }
 
+    // Simply update the room's gameState to the new state
+    const handleGameStateChanged = (newState) => {
+      setRoom(prev => prev ? { ...prev, gameState: newState } : null);
+    };
+
+    const handleError = (errorMessage) => {
+      // setError(errorMessage)
+      // if (errorMessage === 'Room not found') {
+      //   localStorage.removeItem('playerInfo')
+      //   window.alert(errorMessage)
+      //   navigate('/join-create-game')
+      // }
+    }
+
+    // Socket event listeners
+    socket.on('room-joined', handleRoomJoined);
+    socket.on('room-updated', handleRoomUpdated);
+    socket.on('game-state-changed', handleGameStateChanged);
+    socket.on('timer-update', setTimeLeft);
+    socket.on('error', handleError);
+
+    // Cleanup function
     return () => {
-      if (socket) {
-        socket.disconnect()
-      }
-    }
+      socket.off('room-joined', handleRoomJoined);
+      socket.off('room-updated', handleRoomUpdated);
+      socket.off('game-started', handleGameStateChanged);
+      socket.off('timer-update', setTimeLeft);
+      socket.off('error', handleError);
+      socket.disconnect();
+    };
+  }, [navigate]);
 
-  }, [socket]);
-
-  const connectSocket = () => {
-    if (!socket.connected) {
-      socket.connect();  // Only connect if the socket is not already connected
-    }
-  };
-
+  
   const handleStartGame = () => {
     const playerInfo = JSON.parse(localStorage.getItem('playerInfo'));
-    if (playerInfo?.isHost) {
+    if (playerInfo?.isHost === "1") {
       socket.emit('start-game', { roomCode: playerInfo.roomCode });
     }
   };
@@ -83,30 +93,41 @@ const GameRoom = () => {
     return <div className="text-center text-red-600 mt-8">{error}</div>;
   }
 
+  const isDrawer = currentPlayer?.role === "drawer";
+  const isHost = currentPlayer?.isHost === "1";
+  const canDraw = isDrawer && room?.gameState === GameRoomState.DRAWING;
+
   return (
     <div className="w-full min-h-screen p-4">
       <GameRoomHeader
         roomCode={room?.roomCode}
         timeLeft={timeLeft}
-        isHost={currentPlayer?.isHost}
+        isHost={isHost}
         onStartGame={handleStartGame}
+        roundNumber={room?.roundNumber}
+        gameState={room?.gameState}
       />
 
-      {/* Main Game Area */}
       <div className="flex gap-4">
-        {/* Player scores */}
         <GameRoomPlayers
           players={room?.players || []}
+          currentDrawerUsername={
+            room?.players?.find((p) => p.role === "drawer")?.username
+          }
         />
-        {/* Drawing Canvas Component */}
+
         <GameRoomCanvas
-          isDrawing={room?.gameState?.currentDrawer === socket.id}
-          word={room?.gameState?.currentWord}
+          isDrawing={canDraw}
+          word={room?.currentSecretWord}
+          gameState={room?.gameState}
         />
-        {/* Chat Area COMPONENT */}
+
         <GameRoomChat
-          roomCode={room?.code}
+          roomCode={room?.roomCode}
           playerName={currentPlayer?.username}
+          isDrawing={isDrawer}
+          currentWord={room?.currentSecretWord}
+          gameState={room?.gameState}
         />
       </div>
     </div>
