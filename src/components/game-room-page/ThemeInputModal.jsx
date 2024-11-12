@@ -67,7 +67,7 @@ const ThemeInputModal = ({ isOpen, onSubmit, onClose, size }) => {
               <ul className="list-disc list-inside space-y-1 mt-2">
                 <li>Keep it simple and clear.</li>
                 <li>Avoid very specific themes for fun and dynamic words.</li>
-                <li>Make sure it's drawable.</li>
+                <li>Make sure it is drawable.</li>
               </ul>
             </div>
           </ModalBody>

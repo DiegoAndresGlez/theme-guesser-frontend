@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import socket from './utils/socket'
 import GameRoomCanvas from './components/game-room-page/GameRoomCanvas';
 import GameRoomChat from './components/game-room-page/GameRoomChat';
@@ -206,11 +206,12 @@ const GameRoom = () => {
     }
   }, [room?.gameState, hasSubmittedTheme]);
 
+
   const handleThemeSubmit = (theme) => {
     console.log('Submitting theme:', theme);
     socket.emit('submit-theme', {
       theme: theme.trim(),
-      roomCode: room?.accessCode,
+      accessCode: room?.accessCode,
       playerName: currentPlayer?.username
     });
     setHasSubmittedTheme(true);
