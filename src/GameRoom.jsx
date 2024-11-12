@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import socket from './utils/socket'
 import GameRoomCanvas from './components/game-room-page/GameRoomCanvas';
 import GameRoomChat from './components/game-room-page/GameRoomChat';
@@ -6,6 +6,7 @@ import GameRoomHeader from './components/game-room-page/GameRoomHeader';
 import GameRoomPlayers from './components/game-room-page/GameRoomPlayers';
 import { useNavigate } from 'react-router-dom';
 import { GameRoomState } from './utils/GameRoomState';
+import ThemeInputModal from './components/game-room-page/ThemeInputModal';
 
 const GameRoom = () => {
 
@@ -13,6 +14,12 @@ const GameRoom = () => {
   const [room, setRoom] = useState(null)
   const [currentPlayer, setCurrentPlayer] = useState(null);
   const [timeLeft, setTimeLeft] = useState(60);
+
+  // Input theme modal
+  const [showThemeModal, setShowThemeModal] = useState(false)
+  const [hasSubmittedTheme, setHasSubmittedTheme] = useState(false);
+
+  // Error messages from emitted by front/back
   const [error, setError] = useState(null)
 
   useEffect(() => {
@@ -48,6 +55,16 @@ const GameRoom = () => {
         }));
       }
     }
+
+    const handleStartGame = () => {
+      const playerInfo = JSON.parse(localStorage.getItem('playerInfo'));
+      if (playerInfo?.isHost === "1") {
+        console.log('Host initiating game start');
+        socket.emit('start-game', { 
+          roomCode: playerInfo.roomCode  // accessCode in backend
+        });
+      }
+    };
     
     const handleHostChanged = ({ newHost }) => {
       setRoom(prev => {
@@ -179,11 +196,31 @@ const GameRoom = () => {
     };
   }, [navigate]);
 
+  // Effect to handle theme modal visibility
+  useEffect(() => {
+    if (room?.gameState === GameRoomState.CHOOSING_THEME.name && !hasSubmittedTheme) {
+      console.log('Opening theme modal - Choosing theme state');
+      setShowThemeModal(true);
+    } else if (room?.gameState !== GameRoomState.CHOOSING_THEME.name) {
+      setHasSubmittedTheme(false);
+    }
+  }, [room?.gameState, hasSubmittedTheme]);
+
+  const handleThemeSubmit = (theme) => {
+    console.log('Submitting theme:', theme);
+    socket.emit('submit-theme', {
+      theme: theme.trim(),
+      roomCode: room?.accessCode,
+      playerName: currentPlayer?.username
+    });
+    setHasSubmittedTheme(true);
+    setShowThemeModal(false);
+  };
   
   const handleStartGame = () => {
     const playerInfo = JSON.parse(localStorage.getItem('playerInfo'));
     if (playerInfo?.isHost === "1") {
-      socket.emit('start-game', { roomCode: playerInfo.roomCode });
+      socket.emit('start-game', { accessCode: playerInfo.roomCode });
     }
   };
 
@@ -225,6 +262,13 @@ const GameRoom = () => {
 
   return (
     <div className="w-full min-h-screen p-4">
+      <ThemeInputModal
+        isOpen={showThemeModal}
+        onClose={() => {setShowThemeModal(false)}}
+        onSubmit={handleThemeSubmit}
+        size="md"
+      />
+
       <GameRoomHeader
         roomCode={room?.accessCode}
         timeLeft={timeLeft}
