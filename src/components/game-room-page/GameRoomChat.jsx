@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect} from "react";
 import { Button, Input, Card, CardHeader, CardBody, Divider } from "@nextui-org/react";
 import socket from '../../utils/socket'
 
@@ -27,30 +27,35 @@ const GameRoomChat = ({ roomCode, playerName, isDrawing, currentWord, gameState 
 
   const sendMessage = () => {
       if (!message.trim()) return;
-      
-      if (gameState === 'DRAWING') {
-          if (isDrawing) {
-              socket.emit('chat-message', {
-                  roomCode,
-                  username: playerName,
-                  content: message,
-                  type: 'chat'
-              });
-          } else {
-              socket.emit('guess-word', {
-                  roomCode,
-                  username: playerName,
-                  guess: message
-              });
-          }
-      } else {
-          socket.emit('chat-message', {
-              roomCode,
-              username: playerName,
-              content: message,
-              type: 'chat'
-          });
-      }
+    //   if (gameState === 'DRAWING') {
+    //       if (isDrawing) {
+    //           socket.emit('chat-message', {
+    //               roomCode,
+    //               username: playerName,
+    //               content: message,
+    //               type: 'chat'
+    //           });
+    //       } else {
+    //           socket.emit('guess-word', {
+    //               roomCode,
+    //               username: playerName,
+    //               guess: message
+    //           });
+    //       }
+    //   } else {
+    //       socket.emit('chat-message', {
+    //           roomCode,
+    //           username: playerName,
+    //           content: message,
+    //           type: 'chat'
+    //       });
+    //   }
+      socket.emit('chat-message',{
+        roomCode,
+        username:playerName,
+        content:message,
+        type:'chat'
+      })
 
       setMessage('');
   };
@@ -128,7 +133,7 @@ const GameRoomChat = ({ roomCode, playerName, isDrawing, currentWord, gameState 
                       color="primary" 
                       size="sm" 
                       onClick={sendMessage}
-                      disabled={gameState === 'DRAWING' && isDrawing}
+                    //   disabled={gameState === 'DRAWING' && isDrawing}
                   >
                       Send
                   </Button>

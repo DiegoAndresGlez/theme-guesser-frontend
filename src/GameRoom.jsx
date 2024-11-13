@@ -295,7 +295,7 @@ const GameRoom = () => {
         />
 
         <GameRoomChat
-          roomCode={room?.roomCode}
+          roomCode={room?.accessCode}
           playerName={currentPlayer?.username}
           isDrawing={isDrawer}
           currentWord={room?.currentSecretWord}
