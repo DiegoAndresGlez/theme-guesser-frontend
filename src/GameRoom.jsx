@@ -279,22 +279,21 @@ const GameRoom = () => {
 
   // Handle choosing word state
   const handleWordSelection = (selectedWord, wordChoices) => {
-    if (!socket || !room?.accessCode) return;
+    if (!socket || !room?.accessCode || !currentPlayer?.role === "drawer") {
+      console.error('Invalid word selection state')
+      return;
+    } 
 
-    // Remove selected words from wordsList
-    const updatedWordsList = room.wordsList.filter(
-      word => !wordChoices.includes(word)
-    );
+    console.log('Submitting word selection: ', {
+      selected: selectedWord,
+      allChoices: wordChoices,
+    })
 
-    // Emit room update
-    socket.emit('update-room', {
+    socket.emit('select-word', {
       accessCode: room.accessCode,
-      updates: {
-        currentSecretWord: selectedWord,
-        wordsList: updatedWordsList,
-        gameState: GameRoomState.PLAYING.name
-      }
-    });
+      selectedWord,
+      wordChoices,
+    })
 
     // Update local state
     setHasSelectedWord(true);
