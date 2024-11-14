@@ -9,7 +9,7 @@ import {
   Button,
 } from "@nextui-org/react"
 
-const ThemeInputModal = ({ isOpen, onSubmit, onClose, size }) => {
+const ThemeInputModal = ({ isOpen, onSubmit, size }) => {
   const [theme, setTheme] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -87,4 +87,4 @@ const ThemeInputModal = ({ isOpen, onSubmit, onClose, size }) => {
   );
 };
   
-  export default ThemeInputModal;
+export default ThemeInputModal;

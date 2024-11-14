@@ -60,7 +60,7 @@ const JoinCreateGame = () => {
 
       localStorage.setItem('playerInfo', JSON.stringify({
         username: playerName, // TODO: Set this username in user item in auth useEffect for easy access
-        role: "drawer",
+        role: "guesser",
         isHost: 1,
         score: 0,
         roomCode: accessCode,

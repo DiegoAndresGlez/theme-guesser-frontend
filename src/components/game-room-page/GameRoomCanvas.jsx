@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Card, Button } from "@nextui-org/react";
 
-const GameRoomCanvas = ({ color, brushSize }) => {
+const GameRoomCanvas = ({ color, brushSize, isDrawing, word, gameState }) => {
   const canvasRef = useRef(null);
   const [drawing, setDrawing] = useState(false);
   const [canvasSize, setCanvasSize] = useState({ width: 600, height: 400 });
@@ -66,6 +66,7 @@ const GameRoomCanvas = ({ color, brushSize }) => {
         onMouseUp={stopDrawing}
         onMouseLeave={stopDrawing}
       />
+      {/* TODO add tools options here */}
       <Button onClick={clearCanvas}>Clear</Button>
     </Card>
   );
