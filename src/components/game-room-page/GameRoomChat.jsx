@@ -99,8 +99,8 @@ const GameRoomChat = ({ roomCode, playerName, isDrawing, currentWord, gameState 
 
   // Regular chat UI
   return (
-    <Card className="w-80">
-      <CardHeader className="font-bold">Chat</CardHeader>
+    <Card className="w-full max-w-sm mt-2 shadow-lg bg-divider-500 rounded-xl border border-black p-4">
+      <CardHeader className="text-2xl font-bold text-center text-white">Chat</CardHeader>
       <Divider />
       <CardBody>
         <div className="flex flex-col h-[500px]">
@@ -115,7 +115,7 @@ const GameRoomChat = ({ roomCode, playerName, isDrawing, currentWord, gameState 
           <div className="flex gap-2 py-3">
             <Input 
               type="text"
-              placeholder={gameState === 'DRAWING' ? (isDrawing ? "Can't guess while drawing!" : "Type your guess...") : "Type a message..."}
+              placeholder="Type a message..."
               value={message}
               onChange={(event) => setMessage(event.target.value)}
               onKeyPress={(event) => {
@@ -123,11 +123,10 @@ const GameRoomChat = ({ roomCode, playerName, isDrawing, currentWord, gameState 
                   sendMessage();
                 }
               }}
-              disabled={gameState === 'DRAWING' && isDrawing}
             />
           </div>
           <Button 
-            className="flex-l" 
+            className="flex-l rounded-md"
             color="primary" 
             size="sm" 
             onClick={sendMessage}
