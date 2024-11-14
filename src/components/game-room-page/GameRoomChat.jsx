@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef} from "react";
 import { Button, Input, Card, CardHeader, CardBody, Divider } from "@nextui-org/react";
 import socket from '../../utils/socket'
 
@@ -6,6 +6,7 @@ const GameRoomChat = ({ roomCode, playerName, isDrawing, currentWord, gameState 
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
   const [wordChoices, setWordChoices] = useState([]);
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
       const handleChatMessage = (message) => {
@@ -25,32 +26,44 @@ const GameRoomChat = ({ roomCode, playerName, isDrawing, currentWord, gameState 
       };
   }, []);
 
+  useEffect(() => {
+    // Scroll to the bottom whenever messages change
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+
   const sendMessage = () => {
       if (!message.trim()) return;
-      
-      if (gameState === 'DRAWING') {
-          if (isDrawing) {
-              socket.emit('chat-message', {
-                  roomCode,
-                  username: playerName,
-                  content: message,
-                  type: 'chat'
-              });
-          } else {
-              socket.emit('guess-word', {
-                  roomCode,
-                  username: playerName,
-                  guess: message
-              });
-          }
-      } else {
-          socket.emit('chat-message', {
-              roomCode,
-              username: playerName,
-              content: message,
-              type: 'chat'
-          });
-      }
+    //   if (gameState === 'DRAWING') {
+    //       if (isDrawing) {
+    //           socket.emit('chat-message', {
+    //               roomCode,
+    //               username: playerName,
+    //               content: message,
+    //               type: 'chat'
+    //           });
+    //       } else {
+    //           socket.emit('guess-word', {
+    //               roomCode,
+    //               username: playerName,
+    //               guess: message
+    //           });
+    //       }
+    //   } else {
+    //       socket.emit('chat-message', {
+    //           roomCode,
+    //           username: playerName,
+    //           content: message,
+    //           type: 'chat'
+    //       });
+    //   }
+      socket.emit('chat-message',{
+        roomCode,
+        username:playerName,
+        content:message,
+        type:'chat'
+      })
 
       setMessage('');
   };
@@ -86,55 +99,43 @@ const GameRoomChat = ({ roomCode, playerName, isDrawing, currentWord, gameState 
 
   // Regular chat UI
   return (
-      <Card className="w-80">
-          <CardHeader className="font-bold">Chat</CardHeader>
-          <Divider />
-          <CardBody>
-              <div className="flex flex-col h-[500px]">
-                  <div className="flex-1 overflow-y-auto mb-4 space-y-2">
-                      {messages.map((msg, index) => {
-                          if (msg.type === 'close_guess') {
-                              return (
-                                  <div key={index} className="text-sm text-blue-500">
-                                      {msg.username} is getting closer!
-                                  </div>
-                              );
-                          }
-                          return (
-                              <div key={index} className="text-sm">
-                                  <span className="font-semibold">{msg.username}:</span>{' '}
-                                  {msg.content}
-                              </div>
-                          );
-                      })}
-                  </div>
-                  <div className="flex gap-2 py-3">
-                      <Input 
-                          type="text" 
-                          placeholder={
-                              gameState === 'DRAWING' 
-                                  ? isDrawing 
-                                      ? "Can't guess while drawing!" 
-                                      : "Type your guess..."
-                                  : "Type a message..."
-                          }
-                          value={message}
-                          onChange={(event) => setMessage(event.target.value)}
-                          disabled={gameState === 'DRAWING' && isDrawing}
-                      />
-                  </div>
-                  <Button 
-                      className="flex-l" 
-                      color="primary" 
-                      size="sm" 
-                      onClick={sendMessage}
-                      disabled={gameState === 'DRAWING' && isDrawing}
-                  >
-                      Send
-                  </Button>
+    <Card className="w-full max-w-sm mt-2 shadow-lg bg-divider-500 rounded-xl border border-black p-4">
+      <CardHeader className="text-2xl font-bold text-center text-white">Chat</CardHeader>
+      <Divider />
+      <CardBody>
+        <div className="flex flex-col h-[500px]">
+          <div className="flex-1 overflow-y-auto mb-4 space-y-2">
+            {messages.map((msg, index) => (
+              <div key={index} className="text-sm">
+                <span className="font-semibold">{msg.username}:</span> {msg.content}
               </div>
-          </CardBody>
-      </Card>
+            ))}
+            <div ref={messagesEndRef} /> {/* Scroll-to-bottom reference */}
+          </div>
+          <div className="flex gap-2 py-3">
+            <Input 
+              type="text"
+              placeholder="Type a message..."
+              value={message}
+              onChange={(event) => setMessage(event.target.value)}
+              onKeyPress={(event) => {
+                if (event.key === 'Enter') {
+                  sendMessage();
+                }
+              }}
+            />
+          </div>
+          <Button 
+            className="flex-l rounded-md"
+            color="primary" 
+            size="sm" 
+            onClick={sendMessage}
+          >
+            Send
+          </Button>
+        </div>
+      </CardBody>
+    </Card>
   );
 };
 
