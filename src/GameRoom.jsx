@@ -442,6 +442,8 @@ const GameRoom = () => {
         roundNumber={room?.roundNumber}
         gameState={room?.gameState}
         onLeaveGame={handleLeaveGame}
+        currentWord={room?.currentSecretWord}
+        isDrawer={currentPlayer?.role === "drawer"}
       />
 
       <div className="flex gap-4">
