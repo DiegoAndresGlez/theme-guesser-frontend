@@ -1,8 +1,11 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import supabase from './config/supabaseClient.js'
 
 /* Components */
 import Navbar from './components/NavBar.jsx'
+import ProtectedRoute from './components/ProtectedRoute.jsx';
+import ConfirmSignUp from './components/ConfirmSignup.jsx'
 
 /* Pages */
 import Login from './Login.jsx'
@@ -12,9 +15,7 @@ import EditProfile from './EditProfile.jsx'
 import ForgotPasswordConfirm from './ForgotPasswordConfirm.jsx'
 import ForgotPasswordEmail from './ForgotPasswordEmail.jsx'
 import JoinCreateGame from './JoinCreateGame.jsx'
-import ProtectedRoute from './components/ProtectedRoute.jsx';
-import supabase from './config/supabaseClient.js'
-import ConfirmSignUp from './components/ConfirmSignup.jsx'
+import GameRoom from './GameRoom.jsx'
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -76,6 +77,7 @@ const App = () => {
             <Route path="/confirm-signup" element={<ConfirmSignUp/>}/>
             <Route path="/edit-profile" element={<EditProfile />} />
             <Route path="/forgot-password" element={
+              // TODO: When finished all pages check do protectedroutes for all pages that are only accesible by auth user
               <ProtectedRoute>
                 <ForgotPasswordEmail />
               </ProtectedRoute>
@@ -84,7 +86,8 @@ const App = () => {
               path="/forgot-password-confirm"
               element={<ForgotPasswordConfirm />}
             />
-            <Route path="/join-create-game" element={<JoinCreateGame />} />
+            <Route path="/join-create-game" username={username} element={<JoinCreateGame />} />
+            <Route path="/game-room" element={<GameRoom/>} />
           </Routes>
         </main>
       </div>
