@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import socket from './utils/socket'
 import GameRoomCanvas from './components/game-room-page/GameRoomCanvas';
 import GameRoomChat from './components/game-room-page/GameRoomChat';
@@ -17,11 +17,12 @@ const GameRoom = () => {
     const stored = localStorage.getItem('playerInfo')
     return stored ? JSON.parse(stored) : null
   });
-  const [timeLeft, setTimeLeft] = useState(60);
 
   // Input theme modal
   const [showThemeModal, setShowThemeModal] = useState(false)
   const [hasSubmittedTheme, setHasSubmittedTheme] = useState(false);
+  // Add a ref to track submission status that persists across re-renders
+  const [submittedThemes, setSubmittedThemes] = useState(new Set());
 
   // Word selection modal
   const [showWordSelectionModal, setShowWordSelectionModal] = useState(false)
@@ -29,7 +30,6 @@ const GameRoom = () => {
 
   // Error messages from emitted by front/back
   const [error, setError] = useState(null)
-
 
   useEffect(() => {
     // Get player info from localStorage
@@ -64,14 +64,23 @@ const GameRoom = () => {
         const isRoleChanged = currentPlayer?.role !== updatedPlayer.role
         
         // Update current player data
-        setCurrentPlayer(updatedPlayer);
+        setCurrentPlayer(prev => {
+          // Only update if there are actual changes
+          if (JSON.stringify(prev) !== JSON.stringify(updatedPlayer)) {
+            return updatedPlayer;
+          }
+          return prev;
+        });
 
-        // Update localStorage info about player
-        localStorage.setItem('playerInfo', JSON.stringify({
-          ...playerInfo,
-          isHost: updatedPlayer.isHost,
-          role: updatedPlayer.role
-        }));
+        // Update localStorage only if necessary
+        const storedInfo = JSON.parse(localStorage.getItem('playerInfo'));
+        if (storedInfo.isHost !== updatedPlayer.isHost || storedInfo.role !== updatedPlayer.role) {
+          localStorage.setItem('playerInfo', JSON.stringify({
+            ...playerInfo,
+            isHost: updatedPlayer.isHost,
+            role: updatedPlayer.role
+          }));
+        }
 
         // Handle role change specific logic
         if (isRoleChanged) {
@@ -205,7 +214,6 @@ const GameRoom = () => {
     socket.on('player-left', handlePlayerLeft);
     socket.on('room-deleted', handleRoomDeleted)
     socket.on('game-state-changed', handleGameStateChanged);
-    socket.on('timer-update', setTimeLeft);
     socket.on('error', handleError);
 
     // Cleanup function
@@ -231,110 +239,38 @@ const GameRoom = () => {
   }, [navigate]);
 
 
-  // Effect to handle theme modal visibility
-  useEffect(() => {
-    if (room?.gameState === GameRoomState.CHOOSING_THEME.name && !hasSubmittedTheme) {
-      console.log('Opening theme modal - Choosing theme state');
-      setShowThemeModal(true);
-    } else if (room?.gameState !== GameRoomState.CHOOSING_THEME.name) {
-      setHasSubmittedTheme(false);
-    }
-  }, [room?.gameState, hasSubmittedTheme]);
-
-  const handleThemeSubmit = (theme) => {
-    console.log('Submitting theme:', theme);
-    socket.emit('submit-theme', {
-      theme: theme.trim(),
-      accessCode: room?.accessCode,
-      playerName: currentPlayer?.username
-    });
-    setHasSubmittedTheme(true);
-    setShowThemeModal(false);
-  };
-
-  // Handle choosing theme state
+  // Theme modal effect
   useEffect(() => {
     if (room?.gameState === GameRoomState.CHOOSING_THEME.name) {
-      // Check if current player has already submitted a theme
       const playerHasSubmitted = room.themes?.some(
         t => t.playerName === currentPlayer?.username
       );
       
-      if (!playerHasSubmitted) {
-        console.log('Opening theme modal for', currentPlayer?.username);
+      if (!playerHasSubmitted && !hasSubmittedTheme) {
         setShowThemeModal(true);
         setHasSubmittedTheme(false);
       } else {
-        // Player has already submitted, keep modal closed
         setShowThemeModal(false);
         setHasSubmittedTheme(true);
       }
-    } else {
-      // Reset states when leaving CHOOSING_THEME state
-      setShowThemeModal(false);
-      setHasSubmittedTheme(false);
     }
-  }, [room?.gameState, room?.themes, currentPlayer?.username]);
+  }, [room?.gameState, room?.themes, currentPlayer?.username, hasSubmittedTheme]);
 
-
-  // Handle choosing word state
-  const handleWordSelection = (selectedWord, wordChoices) => {
-    if (!socket || !room?.accessCode || !currentPlayer?.role === "drawer") {
-      console.error('Invalid word selection state')
-      return;
-    } 
-
-    console.log('Submitting word selection: ', {
-      selected: selectedWord,
-      allChoices: wordChoices,
-    })
-
-    socket.emit('select-word', {
-      accessCode: room.accessCode,
-      selectedWord,
-      wordChoices,
-    })
-
-    // Update local state
-    setHasSelectedWord(true);
-    setShowWordSelectionModal(false);
-  };
-
-  // Effect to handle word selection modal visibility
+  // Word selection modal effect
   useEffect(() => {
-    // Check if we're in CHOOSING_WORD state and all themes are submitted
     if (room?.gameState === GameRoomState.CHOOSING_WORD.name &&
-      currentPlayer?.role === 'drawer' &&
-      !hasSelectedWord) {
-
-      // Check if all players have submitted themes
+        currentPlayer?.role === 'drawer' &&
+        !hasSelectedWord) {
       const allThemesSubmitted = room.players.length === room.themes?.length;
 
-      if (allThemesSubmitted) {
-        console.log('All themes submitted, showing word selection modal');
-        setShowWordSelectionModal(true);
-      } else {
-        console.log('Waiting for all themes to be submitted')
-        setShowWordSelectionModal(false)
-      }
+      setShowWordSelectionModal(allThemesSubmitted);
     } else {
-      // Close modal and reset state when leaving CHOOSING_WORD state
       setShowWordSelectionModal(false);
 
-      // Reset hasSelectedWord when game state changes
       if (room?.gameState !== GameRoomState.CHOOSING_WORD.name) {
         setHasSelectedWord(false);
       }
     }
-    // Debug logs
-    console.log('Word selection effect triggered:', {
-      gameState: room?.gameState,
-      role: currentPlayer?.role,
-      hasSelectedWord,
-      themesSubmitted: room?.themes?.length,
-      totalPlayers: room?.players?.length,
-      modalShown: showWordSelectionModal
-    });
   }, [
     room?.gameState,
     room?.players.length,
@@ -342,7 +278,62 @@ const GameRoom = () => {
     currentPlayer?.role,
     hasSelectedWord
   ]);
-  
+
+  const handleThemeSubmit = async (theme) => {
+    return new Promise((resolve, reject) => {
+        console.log('Submitting theme:', theme);
+        socket.emit('submit-theme', {
+            theme: theme.trim(),
+            accessCode: room?.accessCode,
+            playerName: currentPlayer?.username
+        });
+
+        // Listen for room update which indicates successful word generation
+        const handleRoomUpdate = (updatedRoom) => {
+            // Check if our theme was added
+            const ourThemeSubmitted = updatedRoom.themes.some(
+                t => t.playerName === currentPlayer?.username
+            );
+            
+            if (ourThemeSubmitted) {
+                socket.off('room-updated', handleRoomUpdate);
+                socket.off('error', handleError);
+                setHasSubmittedTheme(true);
+                setShowThemeModal(false);
+                resolve();
+            }
+        };
+
+        // Listen for errors
+        const handleError = (error) => {
+            socket.off('room-updated', handleRoomUpdate);
+            socket.off('error', handleError);
+            reject(new Error(error));
+        };
+
+        // Add temporary listeners
+        socket.on('room-updated', handleRoomUpdate);
+        socket.on('error', handleError);
+    });
+};
+
+  const handleWordSelection = useCallback((selectedWord, wordChoices) => {
+    if (!socket || !room?.accessCode || !currentPlayer?.role === "drawer") {
+      console.error('Invalid word selection state');
+      return;
+    }
+
+    socket.emit('select-word', {
+      accessCode: room.accessCode,
+      selectedWord,
+      wordChoices,
+    });
+
+    setHasSelectedWord(true);
+    setShowWordSelectionModal(false);
+  }, [room?.accessCode, currentPlayer?.role]);
+
+
   // Handle what happens when player starts the game
   const handleStartGame = () => {
     const playerInfo = JSON.parse(localStorage.getItem('playerInfo'));
@@ -378,14 +369,6 @@ const GameRoom = () => {
     });
   };
 
-  // Optional: Debug function to manually test drawer rotation
-  // const debugNextDrawer = () => {
-  //   if (!socket || !room?.accessCode) return;
-  //   socket.emit('assign-next-drawer', {
-  //     accessCode: room.accessCode
-  //   });
-  // };
-
   // Player client states
   const isDrawer = currentPlayer?.role === "drawer";
   const isHost = currentPlayer?.isHost === "1";
@@ -411,10 +394,11 @@ const GameRoom = () => {
         isOpen={showThemeModal}
         onSubmit={handleThemeSubmit}
         onClose={() => {
-          if (room?.gameState === GameRoomState.CHOOSING_THEME.name && !hasSubmittedTheme) {
-            return
+          // Only allow closing if player has submitted or game state has changed
+          if (room?.gameState !== GameRoomState.CHOOSING_THEME.name ||
+            submittedThemes.has(currentPlayer?.username)) {
+            setShowThemeModal(false);
           }
-          setShowThemeModal(false)
         }}
         size="md"
       />
@@ -436,7 +420,6 @@ const GameRoom = () => {
 
       <GameRoomHeader
         roomCode={room?.accessCode}
-        timeLeft={timeLeft}
         isHost={isHost}
         onStartGame={handleStartGame}
         roundNumber={room?.roundNumber}
