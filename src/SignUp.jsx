@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import InfoComponent from "./InfoComponent";
 import AlertModal from "./components/AlertModal";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
+import eyeIcon from "./assets/img/eye.png";
+import blockedEyeIcon from "./assets/img/blocked-eye.png"; 
 
 const SignUp = () => {
   const [username, setUsername] = useState("")
@@ -129,28 +131,28 @@ const SignUp = () => {
                 onChange={(e) => setPassword(e.target.value)}
               />
               <img
-                src={`assets/img/${showPassword ? "assets/img/eye.png" : "assets/img/eye.png"}`}
-                alt="Toggle password visibility"
-                className="absolute right-2 top-2 w-6 h-6 cursor-pointer"
-                onClick={toggleShowPassword}
-              />
+                  src={showPassword ? blockedEyeIcon : eyeIcon}
+                  alt={showPassword ? "Hide password" : "Show password"}
+                  className="absolute right-2 top-2 w-6 h-6 cursor-pointer"
+                  onClick={toggleShowPassword}
+                />
             </div>
             <div className="relative">
               <Input
                 isRequired
                 clearable
                 underlined
-                placeholder="Repeat Password"
+                placeholder="Password"
                 type={showPassword ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
               <img
-                src={`assets/img/${showPassword ? "assets/img/eye.png" : "assets/img/eye.png"}`}
-                alt="Toggle password visibility"
-                className="absolute right-2 top-2 w-6 h-6 cursor-pointer"
-                onClick={toggleShowPassword}
-              />
+                  src={showPassword ? blockedEyeIcon : eyeIcon}
+                  alt={showPassword ? "Hide password" : "Show password"}
+                  className="absolute right-2 top-2 w-6 h-6 cursor-pointer"
+                  onClick={toggleShowPassword}
+                />
             </div>
           </div>
           <div className="flex justify-center gap-3">
