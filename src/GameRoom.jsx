@@ -238,7 +238,6 @@ const GameRoom = () => {
     };
   }, [navigate]);
 
-
   // Theme modal effect
   useEffect(() => {
     if (room?.gameState === GameRoomState.CHOOSING_THEME.name) {
@@ -358,15 +357,6 @@ const GameRoom = () => {
       console.error('Error leaving game:', error);
       navigate('/join-create-game'); // Navigate anyway in case of error
     }
-  };
-
-  // TODO: Add server-side drawer rotation trigger
-  const handleWordGuessed = () => {
-    if (!socket || !room?.accessCode) return;
-    
-    socket.emit('assign-next-drawer', {
-      accessCode: room.accessCode
-    });
   };
 
   // Player client states

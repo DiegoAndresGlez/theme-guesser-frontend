@@ -5,7 +5,6 @@ import socket from '../../utils/socket'
 const GameRoomChat = ({ roomCode, playerName, isDrawing, currentWord, gameState }) => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
-  const [wordChoices, setWordChoices] = useState([]);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -13,91 +12,84 @@ const GameRoomChat = ({ roomCode, playerName, isDrawing, currentWord, gameState 
           setMessages(prev => [...prev, message]);
       };
 
-      const handleWordChoices = (words) => {
-          setWordChoices(words);
+      const handleCorrectGuess = ({ guesser, guesserScore, drawerScore, word, drawer }) => {
+        setMessages(prev => [
+          ...prev,
+          {
+            content: `${guesser} guessed the word: ${word}!`,
+            type: 'system'
+          },
+          {
+            content: `${guesser} earned ${guesserScore} points!`,
+            type: 'system'
+          },
+          {
+            content: `${drawer} earned ${drawerScore} points for drawing!`,
+            type: 'system'
+          }
+        ]);
+      };
+
+      const handlePlayerGuessed = ({ username }) => {
+        setMessages(prev => [
+          ...prev,
+          {
+            content: `${username} made a guess!`,
+            type: 'system'
+          }
+        ]);
       };
 
       socket.on('chat-message', handleChatMessage);
-      socket.on('word-choices', handleWordChoices);
+      socket.on('correct-guess', handleCorrectGuess);
+      socket.on('player-guessed', handlePlayerGuessed);
 
       return () => {
           socket.off('chat-message');
-          socket.off('word-choices');
+          socket.off('correct-guess');
+          socket.off('player-guessed');
       };
   }, []);
 
   useEffect(() => {
-    // Scroll to the bottom whenever messages change
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
 
   const sendMessage = () => {
-      if (!message.trim()) return;
-    //   if (gameState === 'DRAWING') {
-    //       if (isDrawing) {
-    //           socket.emit('chat-message', {
-    //               roomCode,
-    //               username: playerName,
-    //               content: message,
-    //               type: 'chat'
-    //           });
-    //       } else {
-    //           socket.emit('guess-word', {
-    //               roomCode,
-    //               username: playerName,
-    //               guess: message
-    //           });
-    //       }
-    //   } else {
-    //       socket.emit('chat-message', {
-    //           roomCode,
-    //           username: playerName,
-    //           content: message,
-    //           type: 'chat'
-    //       });
-    //   }
-      socket.emit('chat-message',{
-        roomCode,
-        username:playerName,
-        content:message,
-        type:'chat'
-      })
+    if (!message.trim()) return;
 
-      setMessage('');
+    // If in drawing phase and not the drawer, treat as guess
+    if (gameState === 'DRAWING' && !isDrawing) {
+      socket.emit('guess-word', {
+        accessCode: roomCode,
+        guess: message,
+        username: playerName
+      });
+    }
+    if (currentWord !== message) {
+      socket.emit('chat-message', {
+        roomCode,
+        username: playerName,
+        content: message,
+        type: 'chat'
+      });
+    }
+    setMessage('');
   };
 
-  // Word selection UI
-  if (gameState === 'CHOOSING_WORD' && isDrawing && wordChoices.length > 0) {
-      return (
-          <Card className="w-80">
-              <CardHeader className="font-bold">Choose a Word</CardHeader>
-              <Divider />
-              <CardBody>
-                  <div className="flex flex-col gap-2">
-                      {wordChoices.map((word, index) => (
-                          <Button 
-                              key={index}
-                              color="primary"
-                              onClick={() => {
-                                  socket.emit('word-selected', {
-                                      roomCode,
-                                      word
-                                  });
-                                  setWordChoices([]);
-                              }}
-                          >
-                              {word}
-                          </Button>
-                      ))}
-                  </div>
-              </CardBody>
-          </Card>
-      );
-  }
+  // Get input placeholder text
+  const getPlaceholderText = () => {
+    if (gameState === 'DRAWING') {
+      if (isDrawing) {
+        return "Chat disabled while drawing";
+      }
+      return "Type your guess...";
+    }
+    return "Type a message...";
+  };
 
-  // Regular chat UI
   return (
     <Card className="w-full max-w-sm mt-2 shadow-lg bg-divider-500 rounded-xl border border-black p-4">
       <CardHeader className="text-2xl font-bold text-center text-white">Chat</CardHeader>
@@ -106,32 +98,43 @@ const GameRoomChat = ({ roomCode, playerName, isDrawing, currentWord, gameState 
         <div className="flex flex-col h-[500px]">
           <div className="flex-1 overflow-y-auto mb-4 space-y-2">
             {messages.map((msg, index) => (
-              <div key={index} className="text-sm">
-                <span className="font-semibold">{msg.username}:</span> {msg.content}
+              <div
+                key={index}
+                className={`text-sm ${msg.type === 'system' ? 'text-white-500 bold' : ''}`}
+              >
+                {msg.type === 'system' ? (
+                  msg.content
+                ) : (
+                  <>
+                    <span className="font-semibold">{msg.username}:</span> {msg.content}
+                  </>
+                )}
               </div>
             ))}
-            <div ref={messagesEndRef} /> {/* Scroll-to-bottom reference */}
+            <div ref={messagesEndRef} />
           </div>
           <div className="flex gap-2 py-3">
-            <Input 
+            <Input
               type="text"
-              placeholder="Type a message..."
+              placeholder={getPlaceholderText()}
               value={message}
               onChange={(event) => setMessage(event.target.value)}
               onKeyPress={(event) => {
-                if (event.key === 'Enter') {
+                if (event.key === 'Enter' && (!isDrawing || gameState !== 'DRAWING')) {
                   sendMessage();
                 }
               }}
+              isDisabled={gameState === 'DRAWING' && isDrawing}
             />
           </div>
-          <Button 
+          <Button
             className="flex-l rounded-md"
-            color="primary" 
-            size="sm" 
+            color="primary"
+            size="sm"
             onClick={sendMessage}
+            isDisabled={gameState === 'DRAWING' && isDrawing}
           >
-            Send
+            {gameState === 'DRAWING' && !isDrawing ? 'Guess' : 'Send'}
           </Button>
         </div>
       </CardBody>
