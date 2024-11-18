@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, CardBody } from "@nextui-org/react";
+import { Card, CardBody, Spinner } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
 import { GameRoomState, GameRoomStateUtils } from '../../utils/GameRoomState';
 import socket from "../../utils/socket";
@@ -62,6 +62,9 @@ const GameRoomHeader = ({
               <div className="flex justify-between items-center">
                 <div className="space-y-1">
                   <p className="text-xm text-gray-500">{GameRoomStateUtils.getStateLabel(gameState)}</p>
+                  { gameState === GameRoomState.CHOOSING_THEME.name || gameState === GameRoomState.CHOOSING_WORD.name && (
+                    <Spinner size="sm"/>
+                  )}
                   <p className="text-xl text-gray-500">Room Code: #{roomCode}</p>
                 </div>
                 <div className="flex gap-4 items-center">

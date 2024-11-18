@@ -238,7 +238,6 @@ const GameRoom = () => {
     };
   }, [navigate]);
 
-
   // Theme modal effect
   useEffect(() => {
     if (room?.gameState === GameRoomState.CHOOSING_THEME.name) {
@@ -360,15 +359,6 @@ const GameRoom = () => {
     }
   };
 
-  // TODO: Add server-side drawer rotation trigger
-  const handleWordGuessed = () => {
-    if (!socket || !room?.accessCode) return;
-    
-    socket.emit('assign-next-drawer', {
-      accessCode: room.accessCode
-    });
-  };
-
   // Player client states
   const isDrawer = currentPlayer?.role === "drawer";
   const isHost = currentPlayer?.isHost === "1";
@@ -438,8 +428,10 @@ const GameRoom = () => {
         />
 
         <GameRoomCanvas
+          color={'#000000'}
           isDrawing={canDraw}
           word={room?.currentSecretWord}
+          roomCode={room?.accessCode}
           gameState={room?.gameState}
         />
 
