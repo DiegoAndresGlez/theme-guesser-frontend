@@ -428,8 +428,10 @@ const GameRoom = () => {
         />
 
         <GameRoomCanvas
+          color={'#000000'}
           isDrawing={canDraw}
           word={room?.currentSecretWord}
+          roomCode={room?.accessCode}
           gameState={room?.gameState}
         />
 

@@ -12,13 +12,9 @@ const GameRoomChat = ({ roomCode, playerName, isDrawing, currentWord, gameState 
           setMessages(prev => [...prev, message]);
       };
 
-      const handleCorrectGuess = ({ guesser, guesserScore, drawerScore, word, drawer }) => {
+      const handleCorrectGuess = ({ guesser, guesserScore, drawerScore, drawer }) => {
         setMessages(prev => [
           ...prev,
-          {
-            content: `${guesser} guessed the word: ${word}!`,
-            type: 'system'
-          },
           {
             content: `${guesser} earned ${guesserScore} points!`,
             type: 'system'
