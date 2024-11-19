@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { GameRoomState } from './utils/GameRoomState';
 import WordSelectionModal from './components/game-room-page/WordSelectionModal'
 import ThemeInputModal from './components/game-room-page/ThemeInputModal';
+import GameEndModal from './components/game-room-page/GameEndModal';
 import socket from './utils/socket';
 
 const GameRoom = () => {
@@ -27,6 +28,10 @@ const GameRoom = () => {
   // Word selection modal
   const [showWordSelectionModal, setShowWordSelectionModal] = useState(false)
   const [hasSelectedWord, setHasSelectedWord] = useState(false)
+
+  // Game end modal
+  const [showEndGameModal, setShowEndGameModal] = useState(false)
+  const [gameResult, setGameResult] = useState(null)
 
   // Error messages from emitted by front/back
   const [error, setError] = useState(null)
@@ -129,6 +134,8 @@ const GameRoom = () => {
       const playerInfo = JSON.parse(localStorage.getItem('playerInfo'));
       if (playerInfo?.isHost === "1") {
         console.log('Host initiating game start');
+        setHasSubmittedTheme(false)
+        setSubmittedThemes(new Set())
         socket.emit('start-game', { 
           roomCode: playerInfo.roomCode  // accessCode in backend
         });
@@ -225,6 +232,20 @@ const GameRoom = () => {
       setHasSelectedWord(false);
     }
 
+    const handleGameEnded = ({ finalScores, result }) => {
+      setGameResult(result);
+      setShowEndGameModal(true);
+
+      setHasSubmittedTheme(false);
+      setSubmittedThemes(new Set());
+      
+      setRoom(prev => ({
+        ...prev,
+        gameState: GameRoomState.ENDING.name,
+        players: finalScores
+      }));
+    }
+
 
     const handleError = (errorMessage) => {
       setError(errorMessage)
@@ -248,6 +269,7 @@ const GameRoom = () => {
     socket.on('kicked', handleKicked);
     socket.on('player-kicked', handlePlayerKicked);
     socket.on('reset-word-selection', handleResetWordSelection)
+    socket.on('game-ended', handleGameEnded)
     socket.on('error', handleError);
 
     // Cleanup function
@@ -264,6 +286,7 @@ const GameRoom = () => {
       socket.off('room-updated');
       socket.off('host-changed');
       socket.off('player-left');
+      socket.off('game-ended');
       socket.off('room-deleted');
       socket.off('game-state-changed');
       socket.off('timer-update');
@@ -443,6 +466,15 @@ const GameRoom = () => {
             return
           }
           setShowWordSelectionModal(false)
+        }}
+      />
+
+      <GameEndModal
+        isOpen={showEndGameModal}
+        result={gameResult}
+        onClose={() => {
+          setShowEndGameModal(false);
+          setGameResult(null);
         }}
       />
 
