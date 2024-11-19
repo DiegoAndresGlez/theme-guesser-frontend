@@ -69,11 +69,26 @@ const GameRoom = () => {
     }
 
     const handleRoomUpdated = (roomData) => {
+      console.log('Room Updated Event:', {
+        gameState: roomData.gameState,
+        themesCount: roomData.themes?.length,
+        playersCount: roomData.players?.length,
+        currentWord: roomData.currentSecretWord
+      });
+
       // Set new room data
       setRoom(roomData);
 
       // Find updated player data
       const updatedPlayer = roomData.players.find(p => p.username === playerInfo.username);
+
+      console.log('Player Update:', {
+        currentRole: currentPlayer?.role,
+        newRole: updatedPlayer?.role,
+        username: updatedPlayer?.username,
+        isRoleChanged: currentPlayer?.role !== updatedPlayer?.role
+      });
+
       // If player info exists and found updated data for player
       if (playerInfo?.username && updatedPlayer) {
         // Check for role change
@@ -105,11 +120,6 @@ const GameRoom = () => {
           if (updatedPlayer.role === 'drawer') {
             // Reset states for new drawer
             setHasSelectedWord(false)
-            // Don't set modal here, let the useEffect handle it based on game state
-          } else {
-            // Clear drawer-specific states when becoming guesser
-            setHasSelectedWord(false)
-            setShowThemeModal(false)
           }
         }
       }
@@ -211,6 +221,11 @@ const GameRoom = () => {
       });
     };
 
+    const handleResetWordSelection = () => {
+      setHasSelectedWord(false);
+    }
+
+
     const handleError = (errorMessage) => {
       setError(errorMessage)
       localStorage.removeItem('playerInfo')
@@ -232,6 +247,7 @@ const GameRoom = () => {
     socket.on('game-state-changed', handleGameStateChanged);
     socket.on('kicked', handleKicked);
     socket.on('player-kicked', handlePlayerKicked);
+    socket.on('reset-word-selection', handleResetWordSelection)
     socket.on('error', handleError);
 
     // Cleanup function
@@ -253,6 +269,7 @@ const GameRoom = () => {
       socket.off('timer-update');
       socket.off('kicked');
       socket.off('player-kicked');
+      socket.off('reset-word-selection');
       socket.off('error');
       socket.disconnect();
     };
@@ -275,28 +292,88 @@ const GameRoom = () => {
     }
   }, [room?.gameState, room?.themes, currentPlayer?.username, hasSubmittedTheme]);
 
+
   // Word selection modal effect
   useEffect(() => {
+    console.log('Word Selection Modal State:', {
+      gameState: room?.gameState,
+      currentRole: currentPlayer?.role,
+      hasSelectedWord,
+    });
+  
     if (room?.gameState === GameRoomState.CHOOSING_WORD.name &&
         currentPlayer?.role === 'drawer' &&
         !hasSelectedWord) {
-      const allThemesSubmitted = room.players.length === room.themes?.length;
-
-      setShowWordSelectionModal(allThemesSubmitted);
+      setShowWordSelectionModal(true);
     } else {
       setShowWordSelectionModal(false);
-
       if (room?.gameState !== GameRoomState.CHOOSING_WORD.name) {
         setHasSelectedWord(false);
       }
     }
   }, [
     room?.gameState,
-    room?.players.length,
-    room?.themes?.length,
     currentPlayer?.role,
     hasSelectedWord
   ]);
+  // useEffect(() => {
+  //   console.log('Word Selection Modal State:', {
+  //     gameState: room?.gameState,
+  //     isDrawer: currentPlayer?.role === 'drawer',
+  //     hasSelectedWord,
+  //     themesLength: room?.themes?.length,
+  //     playersLength: room?.players?.length
+  //   });
+  
+  //   if (room?.gameState === GameRoomState.CHOOSING_WORD.name &&
+  //       currentPlayer?.role === 'drawer' &&
+  //       !hasSelectedWord) {
+  //     // Only check for themes if we're in the initial theme submission phase
+  //     // If we're mid-game (drawer left), we don't need this check
+  //     const isInitialThemePhase = room.roundNumber === 1 && 
+  //                                !room.players.some(p => p.hasBeenDrawer);
+      
+  //     if (isInitialThemePhase) {
+  //       const allThemesSubmitted = room.players.length === room.themes?.length;
+  //       setShowWordSelectionModal(allThemesSubmitted);
+  //     } else {
+  //       // If not in initial theme phase, show modal immediately for new drawer
+  //       setShowWordSelectionModal(true);
+  //     }
+  //   } else {
+  //     setShowWordSelectionModal(false);
+  //     if (room?.gameState !== GameRoomState.CHOOSING_WORD.name) {
+  //       setHasSelectedWord(false);
+  //     }
+  //   }
+  // }, [
+  //   room?.gameState,
+  //   room?.players.length,
+  //   room?.themes?.length,
+  //   currentPlayer?.role,
+  //   hasSelectedWord
+  // ]);
+  // useEffect(() => {
+  //   if (room?.gameState === GameRoomState.CHOOSING_WORD.name &&
+  //       currentPlayer?.role === 'drawer' &&
+  //       !hasSelectedWord) {
+  //     const allThemesSubmitted = room.players.length === room.themes?.length;
+
+  //     setShowWordSelectionModal(allThemesSubmitted);
+  //   } else {
+  //     setShowWordSelectionModal(false);
+
+  //     if (room?.gameState !== GameRoomState.CHOOSING_WORD.name) {
+  //       setHasSelectedWord(false);
+  //     }
+  //   }
+  // }, [
+  //   room?.gameState,
+  //   room?.players.length,
+  //   room?.themes?.length,
+  //   currentPlayer?.role,
+  //   hasSelectedWord
+  // ]);
 
   const handleThemeSubmit = async (theme) => {
     return new Promise((resolve, reject) => {
