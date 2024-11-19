@@ -48,6 +48,19 @@ module.exports = {
           900: '#0b1630',
           DEFAULT: '#3572ef',
         },
+        danger: {
+          50: '#fdf2f7',
+          100: '#fce7f2',
+          200: '#fecdd7',
+          300: '#fda4bd',
+          400: '#fb7aa2',
+          500: '#f43f7a',
+          600: '#e11d5f',
+          700: '#be0f4b',
+          800: '#9c0550', // base danger
+          900: '#83044c',
+          DEFAULT: '#e11d5f',
+        },
         accent: {
           50: '#f5fcff',
           100: '#ebf9ff',

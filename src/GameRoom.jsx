@@ -1,5 +1,4 @@
 import { useCallback, useState, useEffect } from 'react';
-import socket from './utils/socket'
 import GameRoomCanvas from './components/game-room-page/GameRoomCanvas';
 import GameRoomChat from './components/game-room-page/GameRoomChat';
 import GameRoomHeader from './components/game-room-page/GameRoomHeader';
@@ -8,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { GameRoomState } from './utils/GameRoomState';
 import WordSelectionModal from './components/game-room-page/WordSelectionModal'
 import ThemeInputModal from './components/game-room-page/ThemeInputModal';
+import socket from './utils/socket';
 
 const GameRoom = () => {
   const navigate = useNavigate()
@@ -50,6 +50,22 @@ const GameRoom = () => {
         ...playerInfo,
         isHost: player.isHost
       }));
+    }
+
+    const handleKicked = (message) => {
+      setRoom(null)
+      setCurrentPlayer(null)
+      localStorage.removeItem('playerInfo');
+
+      socket.disconnect()
+
+      // Navigate back to join page
+      window.alert('You have been kicked from the room...')
+      navigate('/join-create-game');
+    }
+
+    const handlePlayerKicked = ({ kickedPlayer, updatedRoom }) => {
+      setRoom(updatedRoom);
     }
 
     const handleRoomUpdated = (roomData) => {
@@ -214,6 +230,8 @@ const GameRoom = () => {
     socket.on('player-left', handlePlayerLeft);
     socket.on('room-deleted', handleRoomDeleted)
     socket.on('game-state-changed', handleGameStateChanged);
+    socket.on('kicked', handleKicked);
+    socket.on('player-kicked', handlePlayerKicked);
     socket.on('error', handleError);
 
     // Cleanup function
@@ -233,6 +251,8 @@ const GameRoom = () => {
       socket.off('room-deleted');
       socket.off('game-state-changed');
       socket.off('timer-update');
+      socket.off('kicked');
+      socket.off('player-kicked');
       socket.off('error');
       socket.disconnect();
     };
@@ -421,6 +441,8 @@ const GameRoom = () => {
 
       <div className="flex gap-4">
         <GameRoomPlayers
+          currentPlayer={currentPlayer}
+          roomCode={room?.accessCode}
           players={room?.players || []}
           currentDrawerUsername={
             room?.players?.find((p) => p.role === "drawer")?.username
@@ -428,11 +450,8 @@ const GameRoom = () => {
         />
 
         <GameRoomCanvas
-          color={'#000000'}
           isDrawing={canDraw}
-          word={room?.currentSecretWord}
           roomCode={room?.accessCode}
-          gameState={room?.gameState}
         />
 
         <GameRoomChat
