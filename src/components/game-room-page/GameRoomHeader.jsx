@@ -50,7 +50,7 @@ const GameRoomHeader = ({
 
   return (
     <>
-      <h1 className="text-heading text-2xl font-bold">Theme Guesser</h1>
+      <h1 className="font-heading text-5xl mb-2 text-accent font-bold">Untitled</h1>      
       <div className="flex gap-4 mb-4">
         {isHost && gameState === GameRoomState.WAITING_FOR_HOST.name && (
           <Button onClick={onStartGame} className="w-80 h-20">START</Button>

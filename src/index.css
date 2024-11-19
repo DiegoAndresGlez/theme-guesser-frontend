@@ -54,6 +54,10 @@ body {
   font-family: 'Nunito Sans', sans-serif;
 }
 
+@font-face {
+  font-family: 'Whatdo';
+  src: url('../public/fonts/Whatdo/Whatdo.ttf') format('truetype')
+}
 
 /* a {
   font-weight: 500;
