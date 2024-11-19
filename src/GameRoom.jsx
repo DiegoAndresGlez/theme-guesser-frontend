@@ -292,7 +292,6 @@ const GameRoom = () => {
     }
   }, [room?.gameState, room?.themes, currentPlayer?.username, hasSubmittedTheme]);
 
-
   // Word selection modal effect
   useEffect(() => {
     console.log('Word Selection Modal State:', {
@@ -316,64 +315,6 @@ const GameRoom = () => {
     currentPlayer?.role,
     hasSelectedWord
   ]);
-  // useEffect(() => {
-  //   console.log('Word Selection Modal State:', {
-  //     gameState: room?.gameState,
-  //     isDrawer: currentPlayer?.role === 'drawer',
-  //     hasSelectedWord,
-  //     themesLength: room?.themes?.length,
-  //     playersLength: room?.players?.length
-  //   });
-  
-  //   if (room?.gameState === GameRoomState.CHOOSING_WORD.name &&
-  //       currentPlayer?.role === 'drawer' &&
-  //       !hasSelectedWord) {
-  //     // Only check for themes if we're in the initial theme submission phase
-  //     // If we're mid-game (drawer left), we don't need this check
-  //     const isInitialThemePhase = room.roundNumber === 1 && 
-  //                                !room.players.some(p => p.hasBeenDrawer);
-      
-  //     if (isInitialThemePhase) {
-  //       const allThemesSubmitted = room.players.length === room.themes?.length;
-  //       setShowWordSelectionModal(allThemesSubmitted);
-  //     } else {
-  //       // If not in initial theme phase, show modal immediately for new drawer
-  //       setShowWordSelectionModal(true);
-  //     }
-  //   } else {
-  //     setShowWordSelectionModal(false);
-  //     if (room?.gameState !== GameRoomState.CHOOSING_WORD.name) {
-  //       setHasSelectedWord(false);
-  //     }
-  //   }
-  // }, [
-  //   room?.gameState,
-  //   room?.players.length,
-  //   room?.themes?.length,
-  //   currentPlayer?.role,
-  //   hasSelectedWord
-  // ]);
-  // useEffect(() => {
-  //   if (room?.gameState === GameRoomState.CHOOSING_WORD.name &&
-  //       currentPlayer?.role === 'drawer' &&
-  //       !hasSelectedWord) {
-  //     const allThemesSubmitted = room.players.length === room.themes?.length;
-
-  //     setShowWordSelectionModal(allThemesSubmitted);
-  //   } else {
-  //     setShowWordSelectionModal(false);
-
-  //     if (room?.gameState !== GameRoomState.CHOOSING_WORD.name) {
-  //       setHasSelectedWord(false);
-  //     }
-  //   }
-  // }, [
-  //   room?.gameState,
-  //   room?.players.length,
-  //   room?.themes?.length,
-  //   currentPlayer?.role,
-  //   hasSelectedWord
-  // ]);
 
   const handleThemeSubmit = async (theme) => {
     return new Promise((resolve, reject) => {

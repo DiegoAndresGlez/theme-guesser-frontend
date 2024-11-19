@@ -10,8 +10,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["'Nunito Sans', sans-serif"],
-        heading: ["'Whatdo', sans-serif"],
+        sans: ["'Nunito Sans'", 'sans-serif'],
+        heading: ["'Whatdo'", 'sans-serif'],
       },
       fontSize: {
         h1: "80px",

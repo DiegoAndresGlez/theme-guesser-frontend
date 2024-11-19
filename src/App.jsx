@@ -22,7 +22,7 @@ const App = () => {
   const [username, setUsername] = useState("")
 
 	useEffect(() => {
-    document.title = "Theme Guesser";
+    document.title = "Untitled - A Draw and Guess Game";
   }, []);
 
   useEffect(() => {
