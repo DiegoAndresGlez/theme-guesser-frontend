@@ -134,6 +134,8 @@ const GameRoom = () => {
       const playerInfo = JSON.parse(localStorage.getItem('playerInfo'));
       if (playerInfo?.isHost === "1") {
         console.log('Host initiating game start');
+        setHasSubmittedTheme(false)
+        setSubmittedThemes(new Set())
         socket.emit('start-game', { 
           roomCode: playerInfo.roomCode  // accessCode in backend
         });
@@ -233,6 +235,9 @@ const GameRoom = () => {
     const handleGameEnded = ({ finalScores, result }) => {
       setGameResult(result);
       setShowEndGameModal(true);
+
+      setHasSubmittedTheme(false);
+      setSubmittedThemes(new Set());
       
       setRoom(prev => ({
         ...prev,
