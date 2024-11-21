@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import socket from './utils/socket'
+import { useCallback, useState, useEffect } from 'react';
 import GameRoomCanvas from './components/game-room-page/GameRoomCanvas';
 import GameRoomChat from './components/game-room-page/GameRoomChat';
 import GameRoomHeader from './components/game-room-page/GameRoomHeader';
@@ -8,6 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import { GameRoomState } from './utils/GameRoomState';
 import WordSelectionModal from './components/game-room-page/WordSelectionModal'
 import ThemeInputModal from './components/game-room-page/ThemeInputModal';
+import GameEndModal from './components/game-room-page/GameEndModal';
+import socket from './utils/socket';
 
 const GameRoom = () => {
   const navigate = useNavigate()
@@ -17,19 +18,23 @@ const GameRoom = () => {
     const stored = localStorage.getItem('playerInfo')
     return stored ? JSON.parse(stored) : null
   });
-  const [timeLeft, setTimeLeft] = useState(60);
 
   // Input theme modal
   const [showThemeModal, setShowThemeModal] = useState(false)
   const [hasSubmittedTheme, setHasSubmittedTheme] = useState(false);
+  // Add a ref to track submission status that persists across re-renders
+  const [submittedThemes, setSubmittedThemes] = useState(new Set());
 
   // Word selection modal
   const [showWordSelectionModal, setShowWordSelectionModal] = useState(false)
   const [hasSelectedWord, setHasSelectedWord] = useState(false)
 
+  // Game end modal
+  const [showEndGameModal, setShowEndGameModal] = useState(false)
+  const [gameResult, setGameResult] = useState(null)
+
   // Error messages from emitted by front/back
   const [error, setError] = useState(null)
-
 
   useEffect(() => {
     // Get player info from localStorage
@@ -52,26 +57,66 @@ const GameRoom = () => {
       }));
     }
 
+    const handleKicked = (message) => {
+      setRoom(null)
+      setCurrentPlayer(null)
+      localStorage.removeItem('playerInfo');
+
+      socket.disconnect()
+
+      // Navigate back to join page
+      window.alert('You have been kicked from the room...')
+      navigate('/join-create-game');
+    }
+
+    const handlePlayerKicked = ({ kickedPlayer, updatedRoom }) => {
+      setRoom(updatedRoom);
+    }
+
     const handleRoomUpdated = (roomData) => {
+      console.log('Room Updated Event:', {
+        gameState: roomData.gameState,
+        themesCount: roomData.themes?.length,
+        playersCount: roomData.players?.length,
+        currentWord: roomData.currentSecretWord
+      });
+
       // Set new room data
       setRoom(roomData);
 
       // Find updated player data
       const updatedPlayer = roomData.players.find(p => p.username === playerInfo.username);
+
+      console.log('Player Update:', {
+        currentRole: currentPlayer?.role,
+        newRole: updatedPlayer?.role,
+        username: updatedPlayer?.username,
+        isRoleChanged: currentPlayer?.role !== updatedPlayer?.role
+      });
+
       // If player info exists and found updated data for player
       if (playerInfo?.username && updatedPlayer) {
         // Check for role change
         const isRoleChanged = currentPlayer?.role !== updatedPlayer.role
         
         // Update current player data
-        setCurrentPlayer(updatedPlayer);
+        setCurrentPlayer(prev => {
+          // Only update if there are actual changes
+          if (JSON.stringify(prev) !== JSON.stringify(updatedPlayer)) {
+            return updatedPlayer;
+          }
+          return prev;
+        });
 
-        // Update localStorage info about player
-        localStorage.setItem('playerInfo', JSON.stringify({
-          ...playerInfo,
-          isHost: updatedPlayer.isHost,
-          role: updatedPlayer.role
-        }));
+        // Update localStorage only if necessary
+        const storedInfo = JSON.parse(localStorage.getItem('playerInfo'));
+        if (storedInfo.isHost !== updatedPlayer.isHost || storedInfo.role !== updatedPlayer.role) {
+          localStorage.setItem('playerInfo', JSON.stringify({
+            ...playerInfo,
+            isHost: updatedPlayer.isHost,
+            role: updatedPlayer.role
+          }));
+        }
 
         // Handle role change specific logic
         if (isRoleChanged) {
@@ -80,11 +125,6 @@ const GameRoom = () => {
           if (updatedPlayer.role === 'drawer') {
             // Reset states for new drawer
             setHasSelectedWord(false)
-            // Don't set modal here, let the useEffect handle it based on game state
-          } else {
-            // Clear drawer-specific states when becoming guesser
-            setHasSelectedWord(false)
-            setShowThemeModal(false)
           }
         }
       }
@@ -94,6 +134,8 @@ const GameRoom = () => {
       const playerInfo = JSON.parse(localStorage.getItem('playerInfo'));
       if (playerInfo?.isHost === "1") {
         console.log('Host initiating game start');
+        setHasSubmittedTheme(false)
+        setSubmittedThemes(new Set())
         socket.emit('start-game', { 
           roomCode: playerInfo.roomCode  // accessCode in backend
         });
@@ -186,6 +228,25 @@ const GameRoom = () => {
       });
     };
 
+    const handleResetWordSelection = () => {
+      setHasSelectedWord(false);
+    }
+
+    const handleGameEnded = ({ finalScores, result }) => {
+      setGameResult(result);
+      setShowEndGameModal(true);
+
+      setHasSubmittedTheme(false);
+      setSubmittedThemes(new Set());
+      
+      setRoom(prev => ({
+        ...prev,
+        gameState: GameRoomState.ENDING.name,
+        players: finalScores
+      }));
+    }
+
+
     const handleError = (errorMessage) => {
       setError(errorMessage)
       localStorage.removeItem('playerInfo')
@@ -205,7 +266,10 @@ const GameRoom = () => {
     socket.on('player-left', handlePlayerLeft);
     socket.on('room-deleted', handleRoomDeleted)
     socket.on('game-state-changed', handleGameStateChanged);
-    socket.on('timer-update', setTimeLeft);
+    socket.on('kicked', handleKicked);
+    socket.on('player-kicked', handlePlayerKicked);
+    socket.on('reset-word-selection', handleResetWordSelection)
+    socket.on('game-ended', handleGameEnded)
     socket.on('error', handleError);
 
     // Cleanup function
@@ -222,127 +286,114 @@ const GameRoom = () => {
       socket.off('room-updated');
       socket.off('host-changed');
       socket.off('player-left');
+      socket.off('game-ended');
       socket.off('room-deleted');
       socket.off('game-state-changed');
       socket.off('timer-update');
+      socket.off('kicked');
+      socket.off('player-kicked');
+      socket.off('reset-word-selection');
       socket.off('error');
       socket.disconnect();
     };
   }, [navigate]);
 
-
-  // Effect to handle theme modal visibility
-  useEffect(() => {
-    if (room?.gameState === GameRoomState.CHOOSING_THEME.name && !hasSubmittedTheme) {
-      console.log('Opening theme modal - Choosing theme state');
-      setShowThemeModal(true);
-    } else if (room?.gameState !== GameRoomState.CHOOSING_THEME.name) {
-      setHasSubmittedTheme(false);
-    }
-  }, [room?.gameState, hasSubmittedTheme]);
-
-  const handleThemeSubmit = (theme) => {
-    console.log('Submitting theme:', theme);
-    socket.emit('submit-theme', {
-      theme: theme.trim(),
-      accessCode: room?.accessCode,
-      playerName: currentPlayer?.username
-    });
-    setHasSubmittedTheme(true);
-    setShowThemeModal(false);
-  };
-
-  // Handle choosing theme state
+  // Theme modal effect
   useEffect(() => {
     if (room?.gameState === GameRoomState.CHOOSING_THEME.name) {
-      // Check if current player has already submitted a theme
       const playerHasSubmitted = room.themes?.some(
         t => t.playerName === currentPlayer?.username
       );
       
-      if (!playerHasSubmitted) {
-        console.log('Opening theme modal for', currentPlayer?.username);
+      if (!playerHasSubmitted && !hasSubmittedTheme) {
         setShowThemeModal(true);
         setHasSubmittedTheme(false);
       } else {
-        // Player has already submitted, keep modal closed
         setShowThemeModal(false);
         setHasSubmittedTheme(true);
       }
-    } else {
-      // Reset states when leaving CHOOSING_THEME state
-      setShowThemeModal(false);
-      setHasSubmittedTheme(false);
     }
-  }, [room?.gameState, room?.themes, currentPlayer?.username]);
+  }, [room?.gameState, room?.themes, currentPlayer?.username, hasSubmittedTheme]);
 
+  // Word selection modal effect
+  useEffect(() => {
+    console.log('Word Selection Modal State:', {
+      gameState: room?.gameState,
+      currentRole: currentPlayer?.role,
+      hasSelectedWord,
+    });
+  
+    if (room?.gameState === GameRoomState.CHOOSING_WORD.name &&
+        currentPlayer?.role === 'drawer' &&
+        !hasSelectedWord) {
+      setShowWordSelectionModal(true);
+    } else {
+      setShowWordSelectionModal(false);
+      if (room?.gameState !== GameRoomState.CHOOSING_WORD.name) {
+        setHasSelectedWord(false);
+      }
+    }
+  }, [
+    room?.gameState,
+    currentPlayer?.role,
+    hasSelectedWord
+  ]);
 
-  // Handle choosing word state
-  const handleWordSelection = (selectedWord, wordChoices) => {
+  const handleThemeSubmit = async (theme) => {
+    return new Promise((resolve, reject) => {
+        console.log('Submitting theme:', theme);
+        socket.emit('submit-theme', {
+            theme: theme.trim(),
+            accessCode: room?.accessCode,
+            playerName: currentPlayer?.username
+        });
+
+        // Listen for room update which indicates successful word generation
+        const handleRoomUpdate = (updatedRoom) => {
+            // Check if our theme was added
+            const ourThemeSubmitted = updatedRoom.themes.some(
+                t => t.playerName === currentPlayer?.username
+            );
+            
+            if (ourThemeSubmitted) {
+                socket.off('room-updated', handleRoomUpdate);
+                socket.off('error', handleError);
+                setHasSubmittedTheme(true);
+                setShowThemeModal(false);
+                resolve();
+            }
+        };
+
+        // Listen for errors
+        const handleError = (error) => {
+            socket.off('room-updated', handleRoomUpdate);
+            socket.off('error', handleError);
+            reject(new Error(error));
+        };
+
+        // Add temporary listeners
+        socket.on('room-updated', handleRoomUpdate);
+        socket.on('error', handleError);
+    });
+};
+
+  const handleWordSelection = useCallback((selectedWord, wordChoices) => {
     if (!socket || !room?.accessCode || !currentPlayer?.role === "drawer") {
-      console.error('Invalid word selection state')
+      console.error('Invalid word selection state');
       return;
-    } 
-
-    console.log('Submitting word selection: ', {
-      selected: selectedWord,
-      allChoices: wordChoices,
-    })
+    }
 
     socket.emit('select-word', {
       accessCode: room.accessCode,
       selectedWord,
       wordChoices,
-    })
+    });
 
-    // Update local state
     setHasSelectedWord(true);
     setShowWordSelectionModal(false);
-  };
+  }, [room?.accessCode, currentPlayer?.role]);
 
-  // Effect to handle word selection modal visibility
-  useEffect(() => {
-    // Check if we're in CHOOSING_WORD state and all themes are submitted
-    if (room?.gameState === GameRoomState.CHOOSING_WORD.name &&
-      currentPlayer?.role === 'drawer' &&
-      !hasSelectedWord) {
 
-      // Check if all players have submitted themes
-      const allThemesSubmitted = room.players.length === room.themes?.length;
-
-      if (allThemesSubmitted) {
-        console.log('All themes submitted, showing word selection modal');
-        setShowWordSelectionModal(true);
-      } else {
-        console.log('Waiting for all themes to be submitted')
-        setShowWordSelectionModal(false)
-      }
-    } else {
-      // Close modal and reset state when leaving CHOOSING_WORD state
-      setShowWordSelectionModal(false);
-
-      // Reset hasSelectedWord when game state changes
-      if (room?.gameState !== GameRoomState.CHOOSING_WORD.name) {
-        setHasSelectedWord(false);
-      }
-    }
-    // Debug logs
-    console.log('Word selection effect triggered:', {
-      gameState: room?.gameState,
-      role: currentPlayer?.role,
-      hasSelectedWord,
-      themesSubmitted: room?.themes?.length,
-      totalPlayers: room?.players?.length,
-      modalShown: showWordSelectionModal
-    });
-  }, [
-    room?.gameState,
-    room?.players.length,
-    room?.themes?.length,
-    currentPlayer?.role,
-    hasSelectedWord
-  ]);
-  
   // Handle what happens when player starts the game
   const handleStartGame = () => {
     const playerInfo = JSON.parse(localStorage.getItem('playerInfo'));
@@ -369,23 +420,6 @@ const GameRoom = () => {
     }
   };
 
-  // TODO: Add server-side drawer rotation trigger
-  const handleWordGuessed = () => {
-    if (!socket || !room?.accessCode) return;
-    
-    socket.emit('assign-next-drawer', {
-      accessCode: room.accessCode
-    });
-  };
-
-  // Optional: Debug function to manually test drawer rotation
-  // const debugNextDrawer = () => {
-  //   if (!socket || !room?.accessCode) return;
-  //   socket.emit('assign-next-drawer', {
-  //     accessCode: room.accessCode
-  //   });
-  // };
-
   // Player client states
   const isDrawer = currentPlayer?.role === "drawer";
   const isHost = currentPlayer?.isHost === "1";
@@ -411,10 +445,11 @@ const GameRoom = () => {
         isOpen={showThemeModal}
         onSubmit={handleThemeSubmit}
         onClose={() => {
-          if (room?.gameState === GameRoomState.CHOOSING_THEME.name && !hasSubmittedTheme) {
-            return
+          // Only allow closing if player has submitted or game state has changed
+          if (room?.gameState !== GameRoomState.CHOOSING_THEME.name ||
+            submittedThemes.has(currentPlayer?.username)) {
+            setShowThemeModal(false);
           }
-          setShowThemeModal(false)
         }}
         size="md"
       />
@@ -434,9 +469,17 @@ const GameRoom = () => {
         }}
       />
 
+      <GameEndModal
+        isOpen={showEndGameModal}
+        result={gameResult}
+        onClose={() => {
+          setShowEndGameModal(false);
+          setGameResult(null);
+        }}
+      />
+
       <GameRoomHeader
         roomCode={room?.accessCode}
-        timeLeft={timeLeft}
         isHost={isHost}
         onStartGame={handleStartGame}
         roundNumber={room?.roundNumber}
@@ -448,6 +491,8 @@ const GameRoom = () => {
 
       <div className="flex gap-4">
         <GameRoomPlayers
+          currentPlayer={currentPlayer}
+          roomCode={room?.accessCode}
           players={room?.players || []}
           currentDrawerUsername={
             room?.players?.find((p) => p.role === "drawer")?.username
@@ -456,8 +501,7 @@ const GameRoom = () => {
 
         <GameRoomCanvas
           isDrawing={canDraw}
-          word={room?.currentSecretWord}
-          gameState={room?.gameState}
+          roomCode={room?.accessCode}
         />
 
         <GameRoomChat

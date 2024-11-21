@@ -148,7 +148,7 @@ const JoinCreateGame = () => {
       )}
 
       <div className="flex flex-col items-center text-card-text p-4 gap-4">
-      <Title message="Theme Guesser"/>
+      <Title message="Untitled"/>
       <Card className="w-full max-w-sm mt-2 shadow-lg bg-card-background rounded-xl border border-black p-4">
           <CardHeader className="text-2xl flex flex-col items-center text-accent p-0">
             Start playing!
