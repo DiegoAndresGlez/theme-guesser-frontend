@@ -104,11 +104,11 @@ const GameRoomChat = ({ roomCode, playerName, isDrawing, currentWord, gameState 
       <Divider />
       <CardBody>
         <div className="flex flex-col h-[500px]">
-          <div className="flex-1 overflow-y-auto mb-4 space-y-2">
+          <div className="flex-1 overflow-y-auto mb-4 space-y-2 text-white">
             {messages.map((msg, index) => (
               <div key={index} className="text-sm">
                 <span className="font-semibold">{msg.username}:</span> {msg.content}
-              </div>
+              </div> 
             ))}
             <div ref={messagesEndRef} /> {/* Scroll-to-bottom reference */}
           </div>

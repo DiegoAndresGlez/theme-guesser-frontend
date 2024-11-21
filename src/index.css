@@ -54,6 +54,11 @@ body {
   font-family: 'Nunito Sans', sans-serif;
 }
 
+input::-ms-reveal,
+input::-ms-clear {
+display: none;
+}
+
 
 /* a {
   font-weight: 500;
