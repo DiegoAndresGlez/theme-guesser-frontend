@@ -53,27 +53,27 @@ const GameRoomHeader = ({
       <h1 className="font-heading text-5xl mb-2 text-accent font-bold">Untitled</h1>      
       <div className="flex gap-4 mb-4">
         {isHost && gameState === GameRoomState.WAITING_FOR_HOST.name && (
-          <Button onClick={onStartGame} className="w-80 h-20">START</Button>
+          <Button onClick={onStartGame} className="w-80 h-20 bg-green-500 text-white rounded-3xl font-bold text-1xl">START</Button>
         )}
 
-        <Card className="flex-1">
+        <Card className="flex-1 bg-divider-500 rounded-3xl">
           <CardBody>
             <div className="flex flex-col space-y-4">
               <div className="flex justify-between items-center">
                 <div className="space-y-1">
-                  <p className="text-xm text-gray-500">{GameRoomStateUtils.getStateLabel(gameState)}</p>
+                  <p className="text-xm text-white">{GameRoomStateUtils.getStateLabel(gameState)}</p>
                   { gameState === GameRoomState.CHOOSING_THEME.name || gameState === GameRoomState.CHOOSING_WORD.name && (
                     <Spinner size="sm"/>
                   )}
-                  <p className="text-xl text-gray-500">Room Code: #{roomCode}</p>
+                  <p className="text-xl text-white">Room Code: #{roomCode}</p>
                 </div>
                 <div className="flex gap-4 items-center">
                   <div className="text-center">
-                    <p className="text-sm text-gray-500">Round</p>
+                    <p className="text-sm text-white">Round</p>
                     <p className="text-lg font-semibold">{displayRoundNumber()}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-sm text-gray-500">Time Left</p>
+                    <p className="text-sm text-white">Time Left</p>
                     <p className="text-lg font-semibold">{timeRemaining || 0}</p>
                   </div>
                   <Button onClick={onLeaveGame} color="primary" size="sm">
@@ -86,7 +86,7 @@ const GameRoomHeader = ({
               {gameState === GameRoomState.DRAWING.name && (
                 <div className="flex justify-center items-center">
                   <div className="text-center">
-                    <p className="text-sm text-gray-500 mb-2">
+                    <p className="text-sm text-white mb-2">
                       {isDrawer ? 'Your word to draw:' : 'Current word:'}
                     </p>
                     <div className="flex gap-2 justify-center">
