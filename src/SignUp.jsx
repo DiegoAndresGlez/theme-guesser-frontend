@@ -96,14 +96,16 @@ const SignUp = () => {
     <div className="flex flex-col items-center text-card-text p-4 gap-4">
       <Card className="w-full max-w-sm mt-2 shadow-lg bg-card-background rounded-xl border border-black p-4">
         <div>
-          <Button className="rounded-full h-12 w-12 bg-accent" onClick={handleBack}>
-            <ArrowLeftIcon className="h-5 w-5"/>
-          </Button>
+          <ArrowLeftIcon 
+            className="h-7 w-7 cursor-pointer text-accent hover:text-divider-500" 
+            onClick={handleBack} 
+          />
         </div>
         <CardHeader className="text-2xl flex flex-col items-center text-accent p-0">Create an account</CardHeader>
         <CardBody className="flex flex-col gap-6 p-4">
           <div className="flex flex-col gap-4">
             <Input
+              color="secondary"
               isRequired
               clearable
               underlined
@@ -112,6 +114,7 @@ const SignUp = () => {
               onChange={(e) => setUsername(e.target.value)}
             />
             <Input
+              color="secondary"
               isRequired
               clearable
               underlined
@@ -122,6 +125,7 @@ const SignUp = () => {
             />
             <div className="relative">
               <Input
+                color="secondary"
                 isRequired
                 clearable
                 underlined
@@ -139,6 +143,7 @@ const SignUp = () => {
             </div>
             <div className="relative">
               <Input
+                color="secondary"
                 isRequired
                 clearable
                 underlined

@@ -96,6 +96,7 @@ const Login = () => {
         <CardBody className="flex flex-col gap-6 p-4">
           <div className="flex flex-col gap-4">
             <Input
+              color="secondary"
               isRequired
               clearable
               underlined
@@ -105,6 +106,7 @@ const Login = () => {
               onChange={(e) => setEmail(e.target.value)}
             />
             <Input
+              color="secondary"
               isRequired
               clearable
               underlined

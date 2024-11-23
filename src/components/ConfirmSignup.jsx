@@ -34,9 +34,9 @@ const ConfirmSignUp = () => {
     }, [location, email]);
 
     return (
-        <div>
-            <h2>Confirming your account...</h2>
-            <p>Please wait...</p>
+        <div className="flex flex-col justify-center items-center h-screen text-center">
+            <h2 className="text-lg font-semibold">Confirming your account...</h2>
+            <p className="text-gray-600">Please wait...</p>
         </div>
     );
 };
