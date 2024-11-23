@@ -8,6 +8,7 @@ const socket = io(URL, {
     reconnection: true, // Enable reconnection
     reconnectionAttempts: 5, // Max reconnection attempts
     reconnectionDelay: 1000, // Delay between reconnection attempts (in ms)
+    secure: true,
     //maybe add
         //query: ???
 });
