@@ -1,4 +1,3 @@
-# First stage: Build the React application
 FROM node:20.18-alpine AS builder
 
 WORKDIR /app
@@ -17,19 +16,29 @@ COPY . /app/
 
 RUN pnpm build
 
-# Second stage: Serve the application using Nginx
-FROM nginx:alpine
-WORKDIR /usr/share/nginx/html
+# Production stage
+FROM node:20.18-alpine
+
+WORKDIR /app
+
+RUN npm install -g pnpm
+
+# Copy package files
+COPY package*.json ./
+
+# Install only production dependencies
+RUN npm install --production
 
 # Copy built files from builder stage
-COPY --from=builder /app/dist .
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/server ./server
 
-# Copy Nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Environment variables
+ENV NODE_ENV=production
+ENV PORT=8080
 
+# Expose the port Cloud Run will use
+EXPOSE 8080
 
-# Expose port 8080 (Cloud Run requirement)
-EXPOSE 8000
-
-# Use shell form for CMD to allow environment variable substitution
-CMD ["nginx", "-g", "daemon off;"]
+# Start the server
+CMD ["npm", "start"]
