@@ -20,7 +20,7 @@ const SignUp = () => {
     setLoading(true)
     
     try {
-      const response = await fetch("http://localhost:3000/api/auth/signup", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -49,17 +49,15 @@ const SignUp = () => {
         throw new Error(errorMessages);
       }
 
-      setAlertMessage("Your account has been successfully created! Please check your email to verify your account.")
+      setAlertMessage("Your account has been successfully created! Try logging in")
       setAlertVisible(true)
       
     } catch (error) {
-
       setAlertMessage(error.message || "Failed to sign up...")
       setAlertVisible(true)
 
     } finally {
       setLoading(false)
-
     }
   };
 

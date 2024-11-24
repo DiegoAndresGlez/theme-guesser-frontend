@@ -20,49 +20,104 @@ import GameRoom from './GameRoom.jsx'
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [username, setUsername] = useState("")
+  const [isLoading, setIsLoading] = useState(true)
 
 	useEffect(() => {
     document.title = "Untitled - A Draw and Guess Game";
   }, []);
 
+  // useEffect(() => {
+  //   // Function to check the initial authentication status
+  //   const checkAuth = async () => {
+  //     const { data } = await supabase.auth.getSession();
+
+  //     if (data) {
+  //       fetchUserProfile(data.session.access_token)
+  //     }
+
+  //     setIsAuthenticated(!!data.session?.user);
+  //   };
+
+  //   // Check initial authentication status
+  //   checkAuth();
+
+  //   // Set up a listener for authentication state changes
+  //   const { subscription } = supabase.auth.onAuthStateChange((event, session) => {
+  //     setIsAuthenticated(!!session?.user);
+  //   });
+
+  //   // Cleanup the listener on component unmount
+  //   return () => {
+  //     subscription?.unsubscribe();
+  //   };
+  // }, []);
+
+
   useEffect(() => {
-    // Function to check the initial authentication status
-    const checkAuth = async () => {
-      const { data } = await supabase.auth.getSession();
-
-      if (data) {
-        const response = await fetch(`http://localhost:3000/api/auth/user-profile`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${data.session.access_token}`
-          },
-        });
-
-        if(!response.ok){
-          throw new Error("Error fetching user profile resource.")
+    // Function to handle auth state
+    const handleAuthChange = async (event, session) => {
+      setIsLoading(true);
+      try {
+        if (session?.user) {
+          setIsAuthenticated(true);
+          await fetchUserProfile(session.access_token);
+        } else {
+          setIsAuthenticated(false);
+          setUsername("");
         }
-
-        const responseData = await response.json();
-        setUsername(responseData.username)
+      } catch (error) {
+        console.error('Auth change error:', error);
+      } finally {
+        setIsLoading(false);
       }
-
-      setIsAuthenticated(!!data.session?.user);
     };
 
-    // Check initial authentication status
-    checkAuth();
+    // Check initial auth state
+    const initializeAuth = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (data.session?.user) {
+          setIsAuthenticated(true);
+          await fetchUserProfile(data.session.access_token);
+        }
+      } catch (error) {
+        console.error('Initial auth check error:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    // Set up a listener for authentication state changes
-    const { subscription } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsAuthenticated(!!session?.user);
-    });
+    // Initialize
+    initializeAuth();
 
-    // Cleanup the listener on component unmount
+    // Set up auth listener
+    const { subscription } = supabase.auth.onAuthStateChange(handleAuthChange);
+
+    // Cleanup
     return () => {
       subscription?.unsubscribe();
     };
   }, []);
+
+  const fetchUserProfile = async (accessToken) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/user-profile`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Error fetching user profile resource.")
+      }
+      const responseData = await response.json();
+      setUsername(responseData.username);
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      setUsername("");
+    }
+  };
 
 	return (
     <BrowserRouter>

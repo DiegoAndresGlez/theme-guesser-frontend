@@ -1,27 +1,25 @@
-import ProfileIconSVG from '../assets/img/profile-icon.svg'
+import profileIconUrl from '../assets/img/profile-icon.png?url'
 
 const ProfileIcon = ({
-    size = 28,
+    size = 48,
     label,
+    className = '',
     ...props
 }) => {
     return (
-        <div 
-            className='bg-accent'
+        <img
+            src={profileIconUrl}
+            className={className}
             style={{ 
-                WebkitMask: `url(${ProfileIconSVG}) no-repeat center`,
-                mask: `url(${ProfileIconSVG}) no-repeat center`,
-                WebkitMaskSize: 'contain',
-                maskSize: 'contain',
                 width: size,
                 height: size,
+                objectFit: 'contain'
             }}
+            alt={label || ""}
             role="img"
-            aria-hidden={!label}
-            aria-label={label || ""}
             {...props}
         />
     );
 };
- 
+
 export default ProfileIcon;
