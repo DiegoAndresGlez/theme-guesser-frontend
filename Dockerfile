@@ -1,8 +1,8 @@
-# Build stage
+# First stage: Build the React application
 FROM node:20.18-alpine AS builder
+
 WORKDIR /app
 
-# Install pnpm
 RUN npm install -g pnpm
 
 # Copy package files
@@ -10,31 +10,24 @@ COPY package.json pnpm-lock.yaml ./
 RUN pnpm install
 
 # Copy source code
-COPY . .
-
-ARG VITE_SUPABASE_KEY
-ARG VITE_SUPABASE_URL
-ARG VITE_BACKEND_URL
-
-ENV VITE_BACKEND_URL=${VITE_BACKEND_URL}
-ENV VITE_SUPABASE_KEY=${VITE_SUPABASE_KEY}
-ENV VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+COPY . /app/
 
 # Build the React application
+# RUN pnpm run build
+
 RUN pnpm build
 
-# Production stage
-FROM node:20.18-alpine
-WORKDIR /app
-
-# Install serve package globally
-RUN npm install -g serve
+# Second stage: Serve the application using Nginx
+FROM nginx:alpine
+WORKDIR /usr/share/nginx/html
 
 # Copy built files from builder stage
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/dist .
 
-# Cloud Run will use the PORT environment variable
-ENV PORT=8080
+# Copy Nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Start the server
-CMD ["serve", "-s", "dist", "-l", "8080"]
+EXPOSE 80
+
+# Use shell form for CMD to allow environment variable substitution
+CMD ["nginx", "-g", "daemon off;"]
