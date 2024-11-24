@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import InfoComponent from "./InfoComponent";
 import AlertModal from "./components/AlertModal";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
+import eyeIcon from "./assets/img/eye.png";
+import blockedEyeIcon from "./assets/img/blocked-eye.png"; 
 
 const SignUp = () => {
   const [username, setUsername] = useState("")
@@ -92,14 +94,16 @@ const SignUp = () => {
     <div className="flex flex-col items-center text-card-text p-4 gap-4">
       <Card className="w-full max-w-sm mt-2 shadow-lg bg-card-background rounded-xl border border-black p-4">
         <div>
-          <Button className="rounded-full h-12 w-12 bg-accent" onClick={handleBack}>
-            <ArrowLeftIcon className="h-5 w-5"/>
-          </Button>
+          <ArrowLeftIcon 
+            className="h-7 w-7 cursor-pointer text-accent hover:text-divider-500" 
+            onClick={handleBack} 
+          />
         </div>
         <CardHeader className="text-2xl flex flex-col items-center text-accent p-0">Create an account</CardHeader>
         <CardBody className="flex flex-col gap-6 p-4">
           <div className="flex flex-col gap-4">
             <Input
+              color="primary"
               isRequired
               clearable
               underlined
@@ -108,6 +112,7 @@ const SignUp = () => {
               onChange={(e) => setUsername(e.target.value)}
             />
             <Input
+              color="primary"
               isRequired
               clearable
               underlined
@@ -118,6 +123,7 @@ const SignUp = () => {
             />
             <div className="relative">
               <Input
+                color="primary"
                 isRequired
                 clearable
                 underlined
@@ -127,28 +133,29 @@ const SignUp = () => {
                 onChange={(e) => setPassword(e.target.value)}
               />
               <img
-                src={`assets/img/${showPassword ? "assets/img/eye.png" : "assets/img/eye.png"}`}
-                alt="Toggle password visibility"
-                className="absolute right-2 top-2 w-6 h-6 cursor-pointer"
-                onClick={toggleShowPassword}
-              />
+                  src={showPassword ? blockedEyeIcon : eyeIcon}
+                  alt={showPassword ? "Hide password" : "Show password"}
+                  className="absolute right-2 top-2 w-6 h-6 cursor-pointer"
+                  onClick={toggleShowPassword}
+                />
             </div>
             <div className="relative">
               <Input
+                color="primary"
                 isRequired
                 clearable
                 underlined
-                placeholder="Repeat Password"
+                placeholder="Password"
                 type={showPassword ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
               <img
-                src={`assets/img/${showPassword ? "assets/img/eye.png" : "assets/img/eye.png"}`}
-                alt="Toggle password visibility"
-                className="absolute right-2 top-2 w-6 h-6 cursor-pointer"
-                onClick={toggleShowPassword}
-              />
+                  src={showPassword ? blockedEyeIcon : eyeIcon}
+                  alt={showPassword ? "Hide password" : "Show password"}
+                  className="absolute right-2 top-2 w-6 h-6 cursor-pointer"
+                  onClick={toggleShowPassword}
+                />
             </div>
           </div>
           <div className="flex justify-center gap-3">

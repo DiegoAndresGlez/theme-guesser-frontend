@@ -94,8 +94,9 @@ const Login = () => {
       <Card className="w-full max-w-sm mt-2 shadow-lg bg-card-background rounded-xl border border-black p-4">
         <CardHeader className="text-2xl flex flex-col items-center text-accent p-0">Welcome!</CardHeader>
         <CardBody className="flex flex-col gap-6 p-4">
-          <div className="flex flex-col gap-4">
+          <div className="dark flex flex-col gap-4">
             <Input
+              color="primary"
               isRequired
               clearable
               underlined
@@ -105,6 +106,7 @@ const Login = () => {
               onChange={(e) => setEmail(e.target.value)}
             />
             <Input
+              color="primary"
               isRequired
               clearable
               underlined

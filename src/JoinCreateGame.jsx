@@ -155,6 +155,7 @@ const JoinCreateGame = () => {
           </CardHeader>
           <CardBody className="flex flex-col gap-6 p-4">
             <Input
+              color="primary"
               clearable
               underlined
               type="text"

@@ -88,18 +88,18 @@ const GameRoomChat = ({ roomCode, playerName, isDrawing, currentWord, gameState 
   };
 
   return (
-    <Card className="w-full max-w-sm mt-2 shadow-lg bg-divider-500 rounded-xl border border-black p-4">
+    <Card className="w-full shadow-lg bg-divider-500 rounded-xl border border-black">
       <CardHeader className="text-2xl font-bold text-center text-white">Chat</CardHeader>
       <Divider />
-      <CardBody>
+      <CardBody className="p-4">
         <div className="flex flex-col h-[500px]">
-          <div className="flex-1 overflow-y-auto mb-4 space-y-2">
+          <div className="flex-1 overflow-y-auto mb-4 space-y-2 text-white">
             {messages.map((msg, index) => (
               <div
                 key={index}
-                className={`text-sm ${msg.type === 'system' ? 'text-white-500 italic' : ''}`}
+                className={`text-sm ${msg.type === "system" ? "text-white-500 font-bold" : ""}`}
               >
-                {msg.type === 'system' ? (
+                {msg.type === "system" ? (
                   msg.content
                 ) : (
                   <>
@@ -110,33 +110,32 @@ const GameRoomChat = ({ roomCode, playerName, isDrawing, currentWord, gameState 
             ))}
             <div ref={messagesEndRef} />
           </div>
-          <div className="flex gap-2 py-3">
+          <div className="flex gap-2">
             <Input
+              color="primary"
               type="text"
               placeholder={getPlaceholderText()}
               value={message}
               onChange={(event) => setMessage(event.target.value)}
               onKeyPress={(event) => {
-                if (event.key === 'Enter' && (!isDrawing || gameState !== 'DRAWING')) {
-                  sendMessage();
+                if (event.key === "Enter" && (!isDrawing || gameState !== "DRAWING")) {
+                  sendMessage()
                 }
               }}
-              isDisabled={gameState === 'DRAWING' && isDrawing}
+              disabled={gameState === "DRAWING" && isDrawing}
             />
+            <Button
+              className="bg-divider-700 text-white"
+              onClick={sendMessage}
+              disabled={gameState === "DRAWING" && isDrawing}
+            >
+              {gameState === "DRAWING" && !isDrawing ? "Guess" : "Send"}
+            </Button>
           </div>
-          <Button
-            className="flex-l rounded-md"
-            color="primary"
-            size="sm"
-            onClick={sendMessage}
-            isDisabled={gameState === 'DRAWING' && isDrawing}
-          >
-            {gameState === 'DRAWING' && !isDrawing ? 'Guess' : 'Send'}
-          </Button>
         </div>
       </CardBody>
     </Card>
-  );
+  )
 };
 
 export default GameRoomChat;

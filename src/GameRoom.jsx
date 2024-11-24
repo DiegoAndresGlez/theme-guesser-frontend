@@ -522,24 +522,16 @@ const GameRoom = () => {
   // })
 
   return (
-    <div className="w-full min-h-screen p-4">
-
-      <WarningModal
-        isOpen={showAlert}
-        onClose={() => setShowAlert(false)}
-        message={warningMessage}
-        size="md"
-      />
-
-      
+    <div className="w-full min-h-screen p-4 space-y-4">
       <ThemeInputModal
         isOpen={showThemeModal}
         onSubmit={handleThemeSubmit}
         onClose={() => {
-          // Only allow closing if player has submitted or game state has changed
-          if (room?.gameState !== GameRoomState.CHOOSING_THEME.name ||
-            submittedThemes.has(currentPlayer?.username)) {
-            setShowThemeModal(false);
+          if (
+            room?.gameState !== GameRoomState.CHOOSING_THEME.name ||
+            submittedThemes.has(currentPlayer?.username)
+          ) {
+            setShowThemeModal(false)
           }
         }}
         size="md"
@@ -550,10 +542,12 @@ const GameRoom = () => {
         size="lg"
         roomData={room}
         onWordSelect={handleWordSelection}
-        onClose= {() => { 
-          if (room?.gameState === GameRoomState.CHOOSING_WORD.name 
-          && currentPlayer?.role === 'guesser' 
-          && !hasSelectedWord) {
+        onClose={() => {
+          if (
+            room?.gameState === GameRoomState.CHOOSING_WORD.name &&
+            currentPlayer?.role === "guesser" &&
+            !hasSelectedWord
+          ) {
             return
           }
           setShowWordSelectionModal(false)
@@ -564,8 +558,8 @@ const GameRoom = () => {
         isOpen={showEndGameModal}
         result={gameResult}
         onClose={() => {
-          setShowEndGameModal(false);
-          setGameResult(null);
+          setShowEndGameModal(false)
+          setGameResult(null)
         }}
       />
 
@@ -580,28 +574,29 @@ const GameRoom = () => {
         isDrawer={currentPlayer?.role === "drawer"}
       />
 
-      <div className="flex gap-4">
-        <GameRoomPlayers
-          currentPlayer={currentPlayer}
-          roomCode={room?.accessCode}
-          players={room?.players || []}
-          currentDrawerUsername={
-            room?.players?.find((p) => p.role === "drawer")?.username
-          }
-        />
-
-        <GameRoomCanvas
-          isDrawing={canDraw}
-          roomCode={room?.accessCode}
-        />
-
-        <GameRoomChat
-          roomCode={room?.accessCode}
-          playerName={currentPlayer?.username}
-          isDrawing={isDrawer}
-          currentWord={room?.currentSecretWord}
-          gameState={room?.gameState}
-        />
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="md:col-span-1">
+          <GameRoomPlayers
+            currentPlayer={currentPlayer}
+            roomCode={room?.accessCode}
+            players={room?.players || []}
+            currentDrawerUsername={
+              room?.players?.find((p) => p.role === "drawer")?.username
+            }
+          />
+        </div>
+        <div className="md:col-span-2 lg:col-span-2">
+          <GameRoomCanvas isDrawing={canDraw} roomCode={room?.accessCode} />
+        </div>
+        <div className="md:col-span-3 lg:col-span-1">
+          <GameRoomChat
+            roomCode={room?.accessCode}
+            playerName={currentPlayer?.username}
+            isDrawing={isDrawer}
+            currentWord={room?.currentSecretWord}
+            gameState={room?.gameState}
+          />
+        </div>
       </div>
     </div>
   );

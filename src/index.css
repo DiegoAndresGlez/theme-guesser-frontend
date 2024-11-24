@@ -58,6 +58,11 @@ body {
   font-family: 'Whatdo';
   src: url('../public/fonts/Whatdo/Whatdo.ttf') format('truetype')
 }
+input::-ms-reveal,
+input::-ms-clear {
+display: none;
+}
+
 
 /* a {
   font-weight: 500;
