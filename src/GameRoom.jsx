@@ -482,11 +482,16 @@ const GameRoom = () => {
   // Handle manual leave (e.g., when clicking a leave button)
   const handleLeaveGame = () => {
     try {
-      const playerInfo = JSON.parse(localStorage.getItem('playerInfo'));
-      if (playerInfo) {
+      //const playerInfo = JSON.parse(localStorage.getItem('playerInfo'));
+
+      if (currentPlayer) {
+        // socket.emit('user-disconnecting', {
+        //   accessCode: playerInfo.roomCode,
+        //   username: playerInfo.username,
+        // })
         socket.emit('leave-room', {
-          accessCode: playerInfo.roomCode,
-          username: playerInfo.username
+          accessCode: room.accessCode,
+          username: currentPlayer.username
         });
         localStorage.removeItem('playerInfo'); // Clear player info
         navigate('/join-create-game');
