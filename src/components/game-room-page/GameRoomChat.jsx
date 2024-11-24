@@ -111,6 +111,7 @@ const GameRoomChat = ({ roomCode, playerName, isDrawing, currentWord, gameState 
           </div>
           <div className="flex gap-2">
             <Input
+              color="primary"
               type="text"
               placeholder={getPlaceholderText()}
               value={message}
@@ -123,6 +124,7 @@ const GameRoomChat = ({ roomCode, playerName, isDrawing, currentWord, gameState 
               disabled={gameState === "DRAWING" && isDrawing}
             />
             <Button
+              className="bg-divider-700 text-white"
               onClick={sendMessage}
               disabled={gameState === "DRAWING" && isDrawing}
             >

@@ -82,7 +82,9 @@ const GameRoomHeader = ({
                   <p className="text-sm text-white">Time Left</p>
                   <p className="text-lg font-semibold">0</p>
                 </div>
-                <Button onClick={onLeaveGame} variant="secondary" size="sm">
+                <Button 
+                  className="bg-divider-700 text-white"
+                  onClick={onLeaveGame} variant="secondary" size="sm">
                   Leave Game
                 </Button>
               </div>

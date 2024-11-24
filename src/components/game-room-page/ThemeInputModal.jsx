@@ -65,6 +65,7 @@ const ThemeInputModal = ({ isOpen, onSubmit, size }) => {
             
             <ModalBody className="primary space-y-4">
               <Input
+                color="primary"
                 label="Theme"
                 placeholder="e.g., Animals, Sports, Food"
                 value={theme}

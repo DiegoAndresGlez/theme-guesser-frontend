@@ -261,9 +261,10 @@ const EditProfile = () => {
       <div className="flex flex-col items-center text-card-text p-4 gap-4">
         <Card className="w-full max-w-sm mt-2 shadow-lg bg-card-background rounded-xl border border-black p-4">
           <div>
-            <Button className="rounded-full bg-accent" onClick={handleBack}>
-              <ArrowLeftIcon className="h-5 w-5"/>
-            </Button>
+            <ArrowLeftIcon 
+              className="h-7 w-7 cursor-pointer text-accent hover:text-divider-500" 
+              onClick={handleBack} 
+            />
           </div>
           
           <CardHeader className="text-2xl flex flex-col items-center text-accent p-0">
@@ -273,6 +274,7 @@ const EditProfile = () => {
           <CardBody className="flex flex-col gap-4">
             <div className="flex flex-col gap-4">
               <Input
+                color="primary"
                 disabled
                 clearable
                 underlined
@@ -281,6 +283,7 @@ const EditProfile = () => {
                 onChange={(e) => setUsername(e.target.value)}
               />
               <Input
+                color="primary"
                 disabled
                 underlined
                 placeholder="Email"
@@ -288,6 +291,7 @@ const EditProfile = () => {
                 onChange={(e) => setEmail(e.target.value)}
               />
               <Input
+                color="primary"
                 isRequired
                 clearable
                 underlined
@@ -309,6 +313,7 @@ const EditProfile = () => {
               <Divider color="divider" />
 
               <Input
+                color="primary"
                 isRequired
                 clearable
                 underlined
@@ -319,6 +324,7 @@ const EditProfile = () => {
                 onChange={(e) => setCurrentPassword(e.target.value)}
               />
               <Input
+                color="primary"
                 isRequired
                 clearable
                 underlined
@@ -328,6 +334,7 @@ const EditProfile = () => {
                 onChange={(e) => setNewPassword(e.target.value)}
               />
               <Input
+                color="primary"
                 isRequired
                 clearable
                 underlined

@@ -103,7 +103,7 @@ const SignUp = () => {
         <CardBody className="flex flex-col gap-6 p-4">
           <div className="flex flex-col gap-4">
             <Input
-              color="secondary"
+              color="primary"
               isRequired
               clearable
               underlined
@@ -112,7 +112,7 @@ const SignUp = () => {
               onChange={(e) => setUsername(e.target.value)}
             />
             <Input
-              color="secondary"
+              color="primary"
               isRequired
               clearable
               underlined
@@ -123,7 +123,7 @@ const SignUp = () => {
             />
             <div className="relative">
               <Input
-                color="secondary"
+                color="primary"
                 isRequired
                 clearable
                 underlined
@@ -141,7 +141,7 @@ const SignUp = () => {
             </div>
             <div className="relative">
               <Input
-                color="secondary"
+                color="primary"
                 isRequired
                 clearable
                 underlined
