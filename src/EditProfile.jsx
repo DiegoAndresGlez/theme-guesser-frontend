@@ -33,7 +33,7 @@ const EditProfile = () => {
           throw new Error("Authentication error. Could not retrieve active session. Please try logging in again.")
         }
         
-        const response = await fetch(`http://localhost:3000/api/auth/user-profile`, {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/user-profile`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -86,7 +86,7 @@ const EditProfile = () => {
         );
       }
 
-      const response = await fetch("http://localhost:3000/api/auth/user-profile/email", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/user-profile/email`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -124,7 +124,7 @@ const EditProfile = () => {
 
 
     setAlertVisible(true)
-    setAlertMessage("Email change requested. Please check your current email to validate the change.");
+    setAlertMessage("Your email has changed successfully!");
 
     if (!alertVisible){
       setTimeout(() => {
@@ -153,7 +153,7 @@ const EditProfile = () => {
         );
       }
 
-      const response = await fetch("http://localhost:3000/api/auth/user-profile/password", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/user-profile/password`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -302,7 +302,7 @@ const EditProfile = () => {
                   color="success"
                   onClick={handleEmailChangeRequest}
                 >
-                  Request email change
+                  Change email
                 </Button>
               </div>
 
