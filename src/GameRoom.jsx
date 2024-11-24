@@ -371,10 +371,10 @@ const GameRoom = () => {
   // Word selection modal effect
   useEffect(() => {
     // console.log('Word Selection Modal State:', {
-      gameState: room?.gameState,
-      currentRole: currentPlayer?.role,
-      hasSelectedWord,
-    });
+    //   gameState: room?.gameState,
+    //   currentRole: currentPlayer?.role,
+    //   hasSelectedWord,
+    // });
   
     if (room?.gameState === GameRoomState.CHOOSING_WORD.name &&
         currentPlayer?.role === 'drawer' &&
