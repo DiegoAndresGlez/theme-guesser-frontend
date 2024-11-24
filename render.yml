@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: untitled-frontend
+    env: static
+    buildCommand: npm i -g pnpm && pnpm install && pnpm run build
+    staticPublishPath: ./dist
