@@ -55,7 +55,7 @@ const Login = () => {
 
 
     } catch(error) {
-      console.log(error)
+      // console.log(error)
       // Get error messages from backend validations and display them
       setAlertMessage(error.message || "Failed to log in...")
       setAlertVisible(true)

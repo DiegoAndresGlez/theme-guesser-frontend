@@ -104,7 +104,7 @@ const EditProfile = () => {
 
       // Check if response is ok before parsing
       if (!response.ok) {
-        console.log(data);
+        // console.log(data);
       
         let errorMessages = "";
       
@@ -171,7 +171,7 @@ const EditProfile = () => {
 
       // Check if response is ok before parsing
       if (!response.ok) {
-        console.log(data);
+        // console.log(data);
       
         let errorMessages = "";
       
