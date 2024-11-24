@@ -12,14 +12,13 @@ RUN pnpm install
 # Copy source code
 COPY . .
 
-# Create .env file during build
 ARG VITE_SUPABASE_KEY
 ARG VITE_SUPABASE_URL
 ARG VITE_BACKEND_URL
 
-RUN echo "VITE_SUPABASE_KEY=$VITE_SUPABASE_KEY" > .env && \
-    echo "VITE_SUPABASE_URL=$VITE_SUPABASE_URL" >> .env && \
-    echo "VITE_BACKEND_URL=$VITE_BACKEND_URL" >> .env
+ENV VITE_BACKEND_URL=${VITE_BACKEND_URL}
+ENV VITE_SUPABASE_KEY=${VITE_SUPABASE_KEY}
+ENV VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
 
 # Build the React application
 RUN pnpm build
