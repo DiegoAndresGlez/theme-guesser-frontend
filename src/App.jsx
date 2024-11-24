@@ -12,8 +12,8 @@ import Login from './Login.jsx'
 import SignUp from './SignUp.jsx'
 import EditProfile from './EditProfile.jsx'
 // import EmailVerificationHandler from './EmailVerificationHandler.jsx'
-import ForgotPasswordConfirm from './ForgotPasswordConfirm.jsx'
-import ForgotPasswordEmail from './ForgotPasswordEmail.jsx'
+import ResetPassword from './ResetPassword.jsx'
+import ForgotPassword from './ForgotPassword.jsx'
 import JoinCreateGame from './JoinCreateGame.jsx'
 import GameRoom from './GameRoom.jsx'
 
@@ -133,13 +133,11 @@ const App = () => {
             <Route path="/edit-profile" element={<EditProfile />} />
             <Route path="/forgot-password" element={
               // TODO: When finished all pages check do protectedroutes for all pages that are only accesible by auth user
-              <ProtectedRoute>
-                <ForgotPasswordEmail />
-              </ProtectedRoute>
+                <ForgotPassword/>
             } />
             <Route
-              path="/forgot-password-confirm"
-              element={<ForgotPasswordConfirm />}
+              path="/reset-password"
+              element={< ResetPassword />}
             />
             <Route path="/join-create-game" username={username} element={<JoinCreateGame />} />
             <Route path="/game-room" element={<GameRoom/>} />
