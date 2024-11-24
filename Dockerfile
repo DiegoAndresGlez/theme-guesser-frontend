@@ -1,33 +1,25 @@
-# First stage: Build the React application
-FROM node:20.18-alpine AS builder
+# Build and serve Vite + React app
+FROM node:18-alpine
+
+# Install pnpm
+RUN npm install -g pnpm
 
 WORKDIR /app
 
-RUN npm install -g pnpm
-
 # Copy package files
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
 
 # Copy source code
-COPY . /app/
+COPY . .
 
-# Build the React application
-# RUN pnpm run build
+# Build the app
+RUN pnpm run build
 
-RUN pnpm build
+# Install `serve` to run the application
+RUN npm install -g serve
 
-# Second stage: Serve the application using Nginx
-FROM nginx:alpine
-WORKDIR /usr/share/nginx/html
-
-# Copy built files from builder stage
-COPY --from=builder /app/dist .
-
-# Copy Nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-EXPOSE 80
-
-# Use shell form for CMD to allow environment variable substitution
-CMD ["nginx", "-g", "daemon off;"]
+# Start the app
+CMD serve dist -p $PORT

@@ -16,6 +16,7 @@ export default defineConfig({
     assetsDir: 'assets',
     rollupOptions: {
       output: {
+        manualChunks: undefined,
         assetFileNames: ({ name }) => {
           // Keep SVGs in a predictable location
           if (name.endsWith('.svg')) {
