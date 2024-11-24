@@ -81,8 +81,8 @@ const GameRoom = () => {
     }
 
     const handleKicked = (message) => {
-      const currentInfo = JSON.parse(localStorage.getItem('playerInfo'));
-      console.log('Kicked event received:', { playerInfo: currentInfo });
+      // const currentInfo = JSON.parse(localStorage.getItem('playerInfo'));
+      // console.log('Kicked event received:', { playerInfo: currentInfo });
 
       socket.disconnect();
       localStorage.removeItem('playerInfo');
@@ -93,10 +93,10 @@ const GameRoom = () => {
     }
 
     const handlePlayerKicked = ({ kickedPlayer, updatedRoom }) => {
-      console.log('Player kicked event received:', {
-        kickedPlayer,
-        currentRoom: room
-      });
+      // console.log('Player kicked event received:', {
+      //   kickedPlayer,
+      //   currentRoom: room
+      // });
 
       // Simply update the room with the new state
       setRoom(updatedRoom);
@@ -149,7 +149,7 @@ const GameRoom = () => {
 
         // Handle role change specific logic
         if (isRoleChanged) {
-          console.log(`Role changed from ${currentPlayer?.role} to ${updatedPlayer.role}`)
+          // console.log(`Role changed from ${currentPlayer?.role} to ${updatedPlayer.role}`)
 
           if (updatedPlayer.role === 'drawer') {
             // Reset states for new drawer
@@ -191,7 +191,7 @@ const GameRoom = () => {
     }
 
     const handleGameStateChanged = (newState) => {
-      console.log('Game state changed:', newState);
+      // console.log('Game state changed:', newState);
       setRoom(prev => {
         if (!prev) return null;
         
@@ -370,11 +370,11 @@ const GameRoom = () => {
 
   // Word selection modal effect
   useEffect(() => {
-    console.log('Word Selection Modal State:', {
-      gameState: room?.gameState,
-      currentRole: currentPlayer?.role,
-      hasSelectedWord,
-    });
+    // console.log('Word Selection Modal State:', {
+    //   gameState: room?.gameState,
+    //   currentRole: currentPlayer?.role,
+    //   hasSelectedWord,
+    // });
   
     if (room?.gameState === GameRoomState.CHOOSING_WORD.name &&
         currentPlayer?.role === 'drawer' &&
@@ -394,7 +394,7 @@ const GameRoom = () => {
 
   const handleThemeSubmit = async (theme) => {
     return new Promise((resolve, reject) => {
-        console.log('Submitting theme:', theme);
+        // console.log('Submitting theme:', theme);
         socket.emit('submit-theme', {
             theme: theme.trim(),
             accessCode: room?.accessCode,
@@ -466,11 +466,11 @@ const GameRoom = () => {
   // Handle what happens when player starts the game
   const handleStartGame = () => {
     const playerInfo = JSON.parse(localStorage.getItem('playerInfo'));
-    console.log('Playerinfo in handleStartGame', playerInfo)
-    console.log(room)
+    // console.log('Playerinfo in handleStartGame', playerInfo)
+    // console.log(room)
     if (currentPlayer?.isHost === "1") {
       if (room?.players?.length < 2) {
-        console.log('LESS THAN 2 PLAYERS')
+        // console.log('LESS THAN 2 PLAYERS')
         setWarningMessage('At least 2 players are required to start the game')
         setShowAlert(true)
         return
@@ -482,11 +482,16 @@ const GameRoom = () => {
   // Handle manual leave (e.g., when clicking a leave button)
   const handleLeaveGame = () => {
     try {
-      const playerInfo = JSON.parse(localStorage.getItem('playerInfo'));
-      if (playerInfo) {
+      //const playerInfo = JSON.parse(localStorage.getItem('playerInfo'));
+
+      if (currentPlayer) {
+        // socket.emit('user-disconnecting', {
+        //   accessCode: playerInfo.roomCode,
+        //   username: playerInfo.username,
+        // })
         socket.emit('leave-room', {
-          accessCode: playerInfo.roomCode,
-          username: playerInfo.username
+          accessCode: room.accessCode,
+          username: currentPlayer.username
         });
         localStorage.removeItem('playerInfo'); // Clear player info
         navigate('/join-create-game');

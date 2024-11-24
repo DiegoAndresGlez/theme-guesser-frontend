@@ -45,7 +45,7 @@ const GameRoomChat = ({ roomCode, playerName, isDrawing, currentWord, gameState 
           socket.off('correct-guess');
           socket.off('player-guessed');
       };
-  }, []);
+  }, [playerName]);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -74,6 +74,7 @@ const GameRoomChat = ({ roomCode, playerName, isDrawing, currentWord, gameState 
     }
     setMessage('');
   };
+
 
   // Get input placeholder text
   const getPlaceholderText = () => {

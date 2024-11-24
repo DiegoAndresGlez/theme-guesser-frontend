@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { 
   Modal, 
   ModalContent,
@@ -16,7 +15,7 @@ const WarningModal = ({ isOpen, onClose, message, size }) => {
       onClose={onClose} 
     >
       <ModalContent className="bg-primary-500">
-        <ModalHeader className="flex flex-col gap-1"> Warning!</ModalHeader>
+        <ModalHeader className="flex flex-col gap-1">Invite people to play</ModalHeader>
         <ModalBody className="primary">
           <p>{message}</p>
         </ModalBody>

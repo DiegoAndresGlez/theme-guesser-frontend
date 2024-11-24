@@ -11,9 +11,9 @@ const ConfirmSignUp = () => {
             const params = new URLSearchParams(location.search);
             const token = params.get('token');
             const type = params.get('type');
-            console.log(token)
-            console.log(type)
-            console.log(email)
+            // console.log(token)
+            // console.log(type)
+            // console.log(email)
 
             const { data } = await supabase.auth.getSession();
 

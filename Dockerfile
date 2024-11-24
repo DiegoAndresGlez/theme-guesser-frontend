@@ -27,9 +27,7 @@ COPY --from=builder /app/dist .
 # Copy Nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-
-# Expose port 8080 (Cloud Run requirement)
-EXPOSE 8000
+EXPOSE 80
 
 # Use shell form for CMD to allow environment variable substitution
 CMD ["nginx", "-g", "daemon off;"]
