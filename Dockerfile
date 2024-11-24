@@ -1,7 +1,8 @@
+# Build stage
 FROM node:20.18-alpine AS builder
-
 WORKDIR /app
 
+# Install pnpm
 RUN npm install -g pnpm
 
 # Copy package files
@@ -9,36 +10,23 @@ COPY package.json pnpm-lock.yaml ./
 RUN pnpm install
 
 # Copy source code
-COPY . /app/
+COPY . .
 
 # Build the React application
-# RUN pnpm run build
-
 RUN pnpm build
 
 # Production stage
 FROM node:20.18-alpine
-
 WORKDIR /app
 
-RUN npm install -g pnpm
-
-# Copy package files
-COPY package*.json ./
-
-# Install only production dependencies
-RUN npm install --production
+# Install serve package globally
+RUN npm install -g serve
 
 # Copy built files from builder stage
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/server ./server
 
-# Environment variables
-ENV NODE_ENV=production
+# Cloud Run will use the PORT environment variable
 ENV PORT=8080
 
-# Expose the port Cloud Run will use
-EXPOSE 8080
-
 # Start the server
-CMD ["npm", "start"]
+CMD ["serve", "-s", "dist", "-l", "8080"]
