@@ -26,32 +26,6 @@ const App = () => {
     document.title = "Untitled - A Draw and Guess Game";
   }, []);
 
-  // useEffect(() => {
-  //   // Function to check the initial authentication status
-  //   const checkAuth = async () => {
-  //     const { data } = await supabase.auth.getSession();
-
-  //     if (data) {
-  //       fetchUserProfile(data.session.access_token)
-  //     }
-
-  //     setIsAuthenticated(!!data.session?.user);
-  //   };
-
-  //   // Check initial authentication status
-  //   checkAuth();
-
-  //   // Set up a listener for authentication state changes
-  //   const { subscription } = supabase.auth.onAuthStateChange((event, session) => {
-  //     setIsAuthenticated(!!session?.user);
-  //   });
-
-  //   // Cleanup the listener on component unmount
-  //   return () => {
-  //     subscription?.unsubscribe();
-  //   };
-  // }, []);
-
 
   useEffect(() => {
     // Function to handle auth state
@@ -122,25 +96,43 @@ const App = () => {
 	return (
     <BrowserRouter>
       <div className="backgroundImage">
-        { isAuthenticated ? (<Navbar isProfileDisabled={false} username={username}/>) : (<Navbar isProfileDisabled={true} username={username}/>)}
+        {isAuthenticated ? (
+            <Navbar isProfileDisabled={false} username={username} />
+          ) : (
+            <Navbar isProfileDisabled={true} username={username} />
+          )}
         <main className='main-content'>
           <Routes>
             {/* <Route path="/" element={<EmailVerificationHandler/>} /> */}
             <Route path="/" element={<Login />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
-            <Route path="/confirm-signup" element={<ConfirmSignUp/>}/>
-            <Route path="/edit-profile" element={<EditProfile />} />
+            <Route path="/edit-profile" element={
+              <ProtectedRoute>
+                <EditProfile />
+              </ProtectedRoute>
+            } />
             <Route path="/forgot-password" element={
-              // TODO: When finished all pages check do protectedroutes for all pages that are only accesible by auth user
                 <ForgotPassword/>
             } />
             <Route
               path="/reset-password"
-              element={< ResetPassword />}
+              element={
+              <ProtectedRoute>
+                  < ResetPassword />
+              </ProtectedRoute>
+              }
             />
-            <Route path="/join-create-game" username={username} element={<JoinCreateGame />} />
-            <Route path="/game-room" element={<GameRoom/>} />
+            <Route path="/join-create-game" element={
+              <ProtectedRoute>
+                <JoinCreateGame username={username}/>
+              </ProtectedRoute>
+            } />
+            <Route path="/game-room" element={
+              <ProtectedRoute>
+                <GameRoom />
+              </ProtectedRoute>
+            } />
           </Routes>
         </main>
       </div>

@@ -23,6 +23,26 @@ const EditProfile = () => {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertVisible, setAlertVisible] = useState(false);
 
+  const handleUpdateProfile = async ({ authUtils }) => {
+    try {
+      // Your existing update profile logic
+
+      // After successful update:
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+
+      // Update auth state
+      authUtils.setIsAuthenticated(false);
+      authUtils.setUsername("");
+
+      // Navigate to login
+      navigate('/login');
+
+    } catch (error) {
+      // Your error handling
+    }
+  };
+
   // Fetch user profile data on component mount
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -128,7 +148,6 @@ const EditProfile = () => {
 
     if (!alertVisible){
       setTimeout(() => {
-        handleSignOut()
         navigate(`/login`) // redirect to join-create-game
       }, 2000)
     }
@@ -195,8 +214,7 @@ const EditProfile = () => {
 
     if (!alertVisible){
       setTimeout(() => {
-        handleSignOut()
-        navigate(`/login`) // redirect to join-create-game
+        navigate(`/join-create-game`) // redirect to join-create-game
       }, 2000)
     }
 
@@ -210,27 +228,6 @@ const EditProfile = () => {
 
     }
   }
-
-  const handleSignOut = async () => {
-    try {
-        const { error } = await supabase.auth.signOut();
-
-        if (error) {
-            throw error; // Handle sign-out error
-        }
-
-        // Optionally, redirect to login page or home page
-        window.location.href = '/login'; // Adjust the path as necessary
-
-    } catch (error) {
-        setAlertMessage(error.message || "An error occured when trying to update your password... Please try again later.")
-        setAlertVisible(true)
-
-    } finally {
-
-      setLoading(false)
-    }
-  };
 
   const handleBack = () => {
     navigate('/join-create-game');

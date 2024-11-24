@@ -13,14 +13,17 @@ const NavBar = ( {isProfileDisabled = true, username = "Username"} ) => {
   const navigate = useNavigate('/login')
 
   const handleSignOut = async () => {
-    const { error } = await supabase.auth.signOut()
 
-    if (error) {
-      throw new Error(error.message)
+    const { data: session, error: error } = await supabase.auth.getSession();
+
+    if (!session) {
+      // If no session, just redirect to login
+      setAlertMessage("Session expired. Redirecting to login...");
+      setAlertVisible(true);
+      return;
     }
-
-    setAlertMessage("Signing out...")
-    setAlertVisible(true)
+    
+    localStorage.clear()
 
     setTimeout(() => {
       navigate('/login')

@@ -19,7 +19,7 @@ import socket from './utils/socket'
  * @property {Promise<Player>}
  */
 
-const JoinCreateGame = () => {
+const JoinCreateGame = ({ username }) => {
   const serverUrl = import.meta.env.VITE_BACKEND_URL;
   const [roomCodeField, setRoomCodeField] = useState("")
   const [roomCode, setRoomCode] = useState("");
@@ -27,7 +27,7 @@ const JoinCreateGame = () => {
   const [isLoadingJoin, setIsLoadingJoin] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertVisible, setAlertVisible] = useState(false);
-  const [playerName, setPlayerName] = useState(Math.random().toString(36).substr(2, 6).toUpperCase().toString()) // pass in authenticated username
+  const [playerName, setPlayerName] = useState(username) // pass in authenticated username
   const [copied, setCopied] = useState(false); // New state for copy confirmation
   const navigate = useNavigate();
 
