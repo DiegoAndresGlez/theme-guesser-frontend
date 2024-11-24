@@ -1,5 +1,4 @@
-# Build and serve Vite + React app
-FROM node:18-alpine
+FROM node:20.18-alpine
 
 # Install pnpm
 RUN npm install -g pnpm
@@ -21,5 +20,8 @@ RUN pnpm run build
 # Install `serve` to run the application
 RUN npm install -g serve
 
-# Start the app
-CMD serve dist -p $PORT
+# Expose port
+EXPOSE $PORT
+
+# Start the app - important to bind to 0.0.0.0
+CMD serve dist -p $PORT --listen 0.0.0.0
