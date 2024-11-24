@@ -8,6 +8,7 @@ import { GameRoomState } from './utils/GameRoomState';
 import WordSelectionModal from './components/game-room-page/WordSelectionModal'
 import ThemeInputModal from './components/game-room-page/ThemeInputModal';
 import GameEndModal from './components/game-room-page/GameEndModal';
+import WarningModal from './components/game-room-page/WarningModal';
 import socket from './utils/socket';
 
 const GameRoom = () => {
@@ -19,11 +20,16 @@ const GameRoom = () => {
     return stored ? JSON.parse(stored) : null
   });
 
+  // Warning modal
+  const [showAlert, setShowAlert] = useState(false);
+  const [warningMessage, setWarningMessage] = useState('');
+
   // Input theme modal
   const [showThemeModal, setShowThemeModal] = useState(false)
   const [hasSubmittedTheme, setHasSubmittedTheme] = useState(false);
   // Add a ref to track submission status that persists across re-renders
   const [submittedThemes, setSubmittedThemes] = useState(new Set());
+  const [isProcessingThemes, setIsProcessingThemes] = useState(false)
 
   // Word selection modal
   const [showWordSelectionModal, setShowWordSelectionModal] = useState(false)
@@ -47,6 +53,23 @@ const GameRoom = () => {
       return
     }
 
+    const handleBeforeUnload = (e) => {
+      // Cancel the event
+      e.preventDefault();
+      
+      // Chrome requires returnValue to be set
+      e.returnValue = '';
+
+      if (playerInfo) {
+        socket.emit('leave-room', {
+          accessCode: playerInfo.roomCode,
+          username: playerInfo.username
+        });
+        
+        socket.disconnect();
+      }
+    };
+
     const handleRoomJoined = (roomData) => {
       setRoom(roomData);
       const player = roomData.players.find(p => p.username === playerInfo.username);
@@ -58,28 +81,34 @@ const GameRoom = () => {
     }
 
     const handleKicked = (message) => {
-      setRoom(null)
-      setCurrentPlayer(null)
+      const currentInfo = JSON.parse(localStorage.getItem('playerInfo'));
+      console.log('Kicked event received:', { playerInfo: currentInfo });
+
+      socket.disconnect();
       localStorage.removeItem('playerInfo');
-
-      socket.disconnect()
-
-      // Navigate back to join page
-      window.alert('You have been kicked from the room...')
+      setRoom(null);
+      setCurrentPlayer(null);
+      window.alert(message || 'You have been kicked from the room...');
       navigate('/join-create-game');
     }
 
     const handlePlayerKicked = ({ kickedPlayer, updatedRoom }) => {
+      console.log('Player kicked event received:', {
+        kickedPlayer,
+        currentRoom: room
+      });
+
+      // Simply update the room with the new state
       setRoom(updatedRoom);
     }
 
     const handleRoomUpdated = (roomData) => {
-      console.log('Room Updated Event:', {
-        gameState: roomData.gameState,
-        themesCount: roomData.themes?.length,
-        playersCount: roomData.players?.length,
-        currentWord: roomData.currentSecretWord
-      });
+      // console.log('Room Updated Event:', {
+      //   gameState: roomData.gameState,
+      //   themesCount: roomData.themes?.length,
+      //   playersCount: roomData.players?.length,
+      //   currentWord: roomData.currentSecretWord
+      // });
 
       // Set new room data
       setRoom(roomData);
@@ -87,12 +116,12 @@ const GameRoom = () => {
       // Find updated player data
       const updatedPlayer = roomData.players.find(p => p.username === playerInfo.username);
 
-      console.log('Player Update:', {
-        currentRole: currentPlayer?.role,
-        newRole: updatedPlayer?.role,
-        username: updatedPlayer?.username,
-        isRoleChanged: currentPlayer?.role !== updatedPlayer?.role
-      });
+      // console.log('Player Update:', {
+      //   currentRole: currentPlayer?.role,
+      //   newRole: updatedPlayer?.role,
+      //   username: updatedPlayer?.username,
+      //   isRoleChanged: currentPlayer?.role !== updatedPlayer?.role
+      // });
 
       // If player info exists and found updated data for player
       if (playerInfo?.username && updatedPlayer) {
@@ -130,18 +159,8 @@ const GameRoom = () => {
       }
     }
 
-    const handleStartGame = () => {
-      const playerInfo = JSON.parse(localStorage.getItem('playerInfo'));
-      if (playerInfo?.isHost === "1") {
-        console.log('Host initiating game start');
-        setHasSubmittedTheme(false)
-        setSubmittedThemes(new Set())
-        socket.emit('start-game', { 
-          roomCode: playerInfo.roomCode  // accessCode in backend
-        });
-      }
-    };
-    
+
+
     const handleHostChanged = ({ newHost }) => {
       setRoom(prev => {
         if (!prev) return null;
@@ -256,6 +275,8 @@ const GameRoom = () => {
 
     socket.connect()
 
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
     // Emitting to join room
     socket.emit('join-room', playerInfo.roomCode, playerInfo.username)
 
@@ -272,6 +293,7 @@ const GameRoom = () => {
     socket.on('game-ended', handleGameEnded)
     socket.on('error', handleError);
 
+
     // Cleanup function
     return () => {
       // Unmount when disconnected
@@ -281,6 +303,8 @@ const GameRoom = () => {
           username: playerInfo.username
         });
       }
+
+      window.removeEventListener('beforeunload', handleBeforeUnload);
       
       socket.off('room-joined');
       socket.off('room-updated');
@@ -298,22 +322,51 @@ const GameRoom = () => {
     };
   }, [navigate]);
 
+  useEffect(() => {
+    // Reset alert when game state changes or when returning to waiting state
+    if (room?.gameState !== GameRoomState.WAITING_FOR_HOST.name) {
+      setShowAlert(false);
+      setWarningMessage('');
+    }
+  }, [room?.gameState]);
+
   // Theme modal effect
+  // useEffect(() => {
+  //   if (room?.gameState === GameRoomState.CHOOSING_THEME.name) {
+  //     const playerHasSubmitted = room.themes?.some(
+  //       t => t.playerName === currentPlayer?.username
+  //     );
+      
+  //     if (!playerHasSubmitted && !hasSubmittedTheme) {
+  //       setShowThemeModal(true);
+  //       setHasSubmittedTheme(false);
+  //     } else {
+  //       setShowThemeModal(false);
+  //       setHasSubmittedTheme(true);
+  //     }
+  //   }
+  // }, [room?.gameState, room?.themes, currentPlayer?.username, hasSubmittedTheme]);
+
   useEffect(() => {
     if (room?.gameState === GameRoomState.CHOOSING_THEME.name) {
       const playerHasSubmitted = room.themes?.some(
         t => t.playerName === currentPlayer?.username
       );
       
-      if (!playerHasSubmitted && !hasSubmittedTheme) {
+      // Only show modal if player hasn't submitted and we're not processing themes
+      if (!playerHasSubmitted && !hasSubmittedTheme && !isProcessingThemes) {
         setShowThemeModal(true);
         setHasSubmittedTheme(false);
       } else {
         setShowThemeModal(false);
         setHasSubmittedTheme(true);
       }
+    } else {
+      // Reset states when leaving theme selection state
+      setShowThemeModal(false);
+      setIsProcessingThemes(false);
     }
-  }, [room?.gameState, room?.themes, currentPlayer?.username, hasSubmittedTheme]);
+  }, [room?.gameState, room?.themes, currentPlayer?.username, hasSubmittedTheme, isProcessingThemes]);
 
   // Word selection modal effect
   useEffect(() => {
@@ -358,22 +411,38 @@ const GameRoom = () => {
             if (ourThemeSubmitted) {
                 socket.off('room-updated', handleRoomUpdate);
                 socket.off('error', handleError);
+                socket.off('game-state-changed', handleGameStateChange)
                 setHasSubmittedTheme(true);
                 setShowThemeModal(false);
                 resolve();
             }
         };
 
-        // Listen for errors
-        const handleError = (error) => {
+        const handleGameStateChange = (newState) => {
+          if (newState !== GameRoomState.CHOOSING_THEME.name) {
             socket.off('room-updated', handleRoomUpdate);
             socket.off('error', handleError);
-            reject(new Error(error));
+            socket.off('game-state-changed', handleGameStateChange);
+            setIsProcessingThemes(false);
+            setShowThemeModal(false);
+            resolve();
+          }
+        };
+  
+
+        // Listen for errors
+        const handleError = (error) => {
+          socket.off('room-updated', handleRoomUpdate);
+          socket.off('error', handleError);
+          socket.off('game-state-changed', handleGameStateChange);
+          setIsProcessingThemes(false);
+          reject(new Error(error));
         };
 
         // Add temporary listeners
         socket.on('room-updated', handleRoomUpdate);
         socket.on('error', handleError);
+        socket.on('game-state-changed', handleGameStateChange);
     });
 };
 
@@ -397,8 +466,16 @@ const GameRoom = () => {
   // Handle what happens when player starts the game
   const handleStartGame = () => {
     const playerInfo = JSON.parse(localStorage.getItem('playerInfo'));
-    if (playerInfo?.isHost === "1") {
-      socket.emit('start-game', { accessCode: playerInfo.roomCode });
+    console.log('Playerinfo in handleStartGame', playerInfo)
+    console.log(room)
+    if (currentPlayer?.isHost === "1") {
+      if (room?.players?.length < 2) {
+        console.log('LESS THAN 2 PLAYERS')
+        setWarningMessage('At least 2 players are required to start the game')
+        setShowAlert(true)
+        return
+      }
+      socket.emit('start-game', { accessCode: room.accessCode });
     }
   };
 
@@ -432,15 +509,24 @@ const GameRoom = () => {
   }
 
 
-  console.log('Game room state info: ', {
-    isHost,
-    currentPlayer,
-    gameState: room?.gameState,
-    roomData: room,
-  })
+  // console.log('Game room state info: ', {
+  //   isHost,
+  //   currentPlayer,
+  //   gameState: room?.gameState,
+  //   roomData: room,
+  // })
 
   return (
     <div className="w-full min-h-screen p-4">
+
+      <WarningModal
+        isOpen={showAlert}
+        onClose={() => setShowAlert(false)}
+        message={warningMessage}
+        size="md"
+      />
+
+      
       <ThemeInputModal
         isOpen={showThemeModal}
         onSubmit={handleThemeSubmit}

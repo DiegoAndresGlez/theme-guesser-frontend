@@ -27,6 +27,7 @@ COPY --from=builder /app/dist .
 # Copy Nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
+
 # Expose port 8080 (Cloud Run requirement)
 EXPOSE 8000
 
