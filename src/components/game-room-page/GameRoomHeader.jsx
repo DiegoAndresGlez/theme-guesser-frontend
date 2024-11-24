@@ -80,7 +80,7 @@ const GameRoomHeader = ({
                 </div>
                 <div className="text-center">
                   <p className="text-sm text-white">Time Left</p>
-                  <p className="text-lg font-semibold">0</p>
+                  <p className="text-lg font-semibold">{timeRemaining}</p>
                 </div>
                 <Button 
                   className="bg-divider-700 text-white"
