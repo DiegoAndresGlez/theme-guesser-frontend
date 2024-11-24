@@ -20,6 +20,8 @@ RUN pnpm install
 # Copy source code
 COPY . .
 
+RUN echo "VITE_SUPABASE_URL: $VITE_SUPABASE_URL"
+
 # Build the React application
 RUN pnpm build
 
