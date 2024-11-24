@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { Card, Button, Divider } from "@nextui-org/react";
 import { HexColorPicker } from 'react-colorful';
 import socket from '../../utils/socket';
@@ -21,24 +21,43 @@ const GameRoomCanvas = ({ isDrawing, roomCode }) => {
   const brushSizes = [5, 10, 15];
   const lastPos = useRef(null);
 
+  const setCanvasSizeWithContent = useCallback(() => {
+    if (!canvasRef.current) return;
+
+    const viewportWidth = window.innerWidth;
+    
+    // Set the canvas width as 80% of the viewport width, but not larger than 800px
+    const width = Math.min(viewportWidth * 0.8, 800);
+    const height = width / aspectRatio;
+
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvasRef.current.width;
+    tempCanvas.height = canvasRef.current.height;
+    const tempCtx = tempCanvas.getContext('2d');
+    tempCtx?.drawImage(canvasRef.current, 0, 0);
+
+    setCanvasSize({ width, height });
+
+    // Use requestAnimationFrame to ensure the canvas size is updated before redrawing
+    requestAnimationFrame(() => {
+      if (!canvasRef.current) return;
+      const ctx = canvasRef.current.getContext('2d');
+      if (!ctx) return;
+
+      ctx.drawImage(
+        tempCanvas,
+        0, 0, tempCanvas.width, tempCanvas.height,
+        0, 0, width, height
+      );
+    });
+  }, [aspectRatio]);
+
   useEffect(() => {
-    // Function to set initial and responsive canvas size
-    const setInitialSize = () => {
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
-      
-      // Set the canvas width as 80% of the viewport width, but not larger than 800px
-      const width = Math.min(viewportWidth * 0.8, 800);
-      const height = width / aspectRatio;
+    setCanvasSizeWithContent();
+    window.addEventListener('resize', setCanvasSizeWithContent);
 
-      setCanvasSize({ width, height });
-    };
-
-    setInitialSize(); // Set size on initial load
-    window.addEventListener('resize', setInitialSize); // Update on resize
-
-    return () => window.removeEventListener('resize', setInitialSize);
-  }, []);
+    return () => window.removeEventListener('resize', setCanvasSizeWithContent);
+  }, [setCanvasSizeWithContent]);
 
   useEffect(() => {
     if (!canvasRef.current)
