@@ -12,6 +12,15 @@ RUN pnpm install
 # Copy source code
 COPY . .
 
+# Create .env file during build
+ARG VITE_SUPABASE_KEY
+ARG VITE_SUPABASE_URL
+ARG VITE_BACKEND_URL
+
+RUN echo "VITE_SUPABASE_KEY=$VITE_SUPABASE_KEY" > .env && \
+    echo "VITE_SUPABASE_URL=$VITE_SUPABASE_URL" >> .env && \
+    echo "VITE_BACKEND_URL=$VITE_BACKEND_URL" >> .env
+
 # Build the React application
 RUN pnpm build
 
@@ -19,19 +28,14 @@ RUN pnpm build
 FROM node:20.18-alpine
 WORKDIR /app
 
-# Install serve package globally and bash (needed for the script)
-RUN apk add --no-cache bash && \
-    npm install -g serve
+# Install serve package globally
+RUN npm install -g serve
 
 # Copy built files from builder stage
 COPY --from=builder /app/dist ./dist
-COPY start.sh ./start.sh
-
-# Make the script executable
-RUN chmod +x ./start.sh
 
 # Cloud Run will use the PORT environment variable
 ENV PORT=8080
 
-# Start using the bash script
-CMD ["/app/start.sh"]
+# Start the server
+CMD ["serve", "-s", "dist", "-l", "8080"]
