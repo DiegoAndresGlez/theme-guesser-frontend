@@ -465,12 +465,10 @@ const GameRoom = () => {
 
   // Handle what happens when player starts the game
   const handleStartGame = () => {
-    const playerInfo = JSON.parse(localStorage.getItem('playerInfo'));
     // console.log('Playerinfo in handleStartGame', playerInfo)
     // console.log(room)
     if (currentPlayer?.isHost === "1") {
       if (room?.players?.length < 2) {
-        // console.log('LESS THAN 2 PLAYERS')
         setWarningMessage('At least 2 players are required to start the game')
         setShowAlert(true)
         return
@@ -523,6 +521,13 @@ const GameRoom = () => {
 
   return (
     <div className="w-full min-h-screen p-4 space-y-4">
+      <WarningModal
+        size="md"
+        isOpen={showAlert}
+        message={"At least 2 people must be in a game room for a game to start"}
+        onClose={() => setShowAlert(false)}
+      />
+
       <ThemeInputModal
         isOpen={showThemeModal}
         onSubmit={handleThemeSubmit}
