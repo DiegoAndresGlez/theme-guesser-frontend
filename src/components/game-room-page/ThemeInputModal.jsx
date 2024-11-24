@@ -40,6 +40,15 @@ const ThemeInputModal = ({ isOpen, onSubmit, size }) => {
     }
   };
 
+  const handleThemeChange = (e) => {
+    const value = e.target.value;
+    if (value.length <= 20) {
+      setTheme(value);
+    }
+  };
+
+  const isValid = theme.trim().length > 0 && theme.length <= 20;
+
   return (
     <Modal
       size={size}
@@ -69,11 +78,14 @@ const ThemeInputModal = ({ isOpen, onSubmit, size }) => {
                 label="Theme"
                 placeholder="e.g., Animals, Sports, Food"
                 value={theme}
-                onChange={(e) => setTheme(e.target.value)}
+                onChange={handleThemeChange}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleSubmit();
+                  if (e.key === 'Enter' && isValid) handleSubmit();
                 }}
                 disabled={isSubmitting}
+                description={`${theme.length}/20 characters`}
+                isInvalid={theme.length > 20}
+                errorMessage={theme.length > 20 ? "Theme must be 20 characters or less" : ""}
               />
               
               <div className="text-sm text-white-400">
@@ -89,7 +101,7 @@ const ThemeInputModal = ({ isOpen, onSubmit, size }) => {
               <Button
                 color="secondary"
                 onPress={handleSubmit}
-                disabled={!theme.trim() || isSubmitting}
+                disabled={!isValid || isSubmitting}
               >
                 {isSubmitting ? 'Submitting...' : 'Submit Theme'}
               </Button>
