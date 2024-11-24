@@ -31,7 +31,7 @@ const SignUp = () => {
       const data = await response.json() 
 
       if (!response.ok) {
-        console.log(data);
+        // console.log(data);
   
         let errorMessages = "";
   
