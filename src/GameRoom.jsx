@@ -46,6 +46,9 @@ const GameRoom = () => {
     // Get player info from localStorage
     const playerInfo = JSON.parse(localStorage.getItem('playerInfo'))
 
+    // Track if we're already in a game
+    let isInGame = false;
+
     if (!playerInfo) {
       window.alert('Error could not retrieve player info... Lost connection')
       return
@@ -67,6 +70,7 @@ const GameRoom = () => {
     };
 
     const handleRoomJoined = (roomData) => {
+      isInGame = true
       setRoom(roomData);
       const player = roomData.players.find(p => p.username === playerInfo.username);
       setCurrentPlayer(player);
@@ -272,7 +276,7 @@ const GameRoom = () => {
     socket.on('connect', () => {
       console.log('Socket reconnected');
       // Re-join room if we have player info
-      if (playerInfo) {
+      if (playerInfo && !isInGame) {
         socket.emit('join-room', playerInfo.roomCode, playerInfo.username);
       }
     });
@@ -280,16 +284,20 @@ const GameRoom = () => {
     socket.on('disconnect', (reason) => {
       console.log('Socket disconnected:', reason);
       // Socket.IO will automatically try to reconnect
+      isInGame = false;
     });
 
     if (!socket.connected) {
       socket.connect();
     }
 
+    if (!isInGame) {
+      socket.emit('join-room', playerInfo.roomCode, playerInfo.username)
+    }
+
     window.addEventListener('beforeunload', handleBeforeUnload);
 
     // Emitting to join room
-    socket.emit('join-room', playerInfo.roomCode, playerInfo.username)
 
     // Socket event listeners
     socket.on('room-joined', handleRoomJoined);
@@ -314,6 +322,8 @@ const GameRoom = () => {
           username: currentPlayer.username
         });
       }
+
+      isInGame = false
 
       window.removeEventListener('beforeunload', handleBeforeUnload);
       
