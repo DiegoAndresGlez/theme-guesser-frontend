@@ -47,7 +47,6 @@ const GameRoom = () => {
     const playerInfo = JSON.parse(localStorage.getItem('playerInfo'))
 
     if (!playerInfo) {
-      // TODO: Alert message
       window.alert('Error could not retrieve player info... Lost connection')
       return
     }
@@ -59,10 +58,10 @@ const GameRoom = () => {
       // Chrome requires returnValue to be set
       e.returnValue = '';
 
-      if (playerInfo) {
+      if (currentPlayer && room?.accessCode) {
         socket.emit('leave-room', {
-          accessCode: playerInfo.roomCode,
-          username: playerInfo.username
+          accessCode: room.accessCode,
+          username: currentPlayer.username
         });
       }
     };
@@ -309,10 +308,10 @@ const GameRoom = () => {
     // Cleanup function
     return () => {
       // Unmount when disconnected
-      if (playerInfo) {
+      if (currentPlayer && room?.accessCode) {
         socket.emit('leave-room', {
-          accessCode: playerInfo.roomCode,
-          username: playerInfo.username
+          accessCode: room.accessCode,
+          username: currentPlayer.username
         });
       }
 
@@ -494,7 +493,7 @@ const GameRoom = () => {
     try {
       //const playerInfo = JSON.parse(localStorage.getItem('playerInfo'));
 
-      if (currentPlayer) {
+      if (currentPlayer && room?.accessCode) {
         // socket.emit('user-disconnecting', {
         //   accessCode: playerInfo.roomCode,
         //   username: playerInfo.username,
@@ -505,9 +504,15 @@ const GameRoom = () => {
         });
         localStorage.removeItem('playerInfo'); // Clear player info
         navigate('/join-create-game');
+      } else {
+        //console.error('Missing player info for leave game');
+        window.alert('Missing player info for leave game')
+        localStorage.removeItem('playerInfo');
+        navigate('/join-create-game');
       }
     } catch (error) {
       console.error('Error leaving game:', error);
+      localStorage.removeItem('playerInfo');
       navigate('/join-create-game'); // Navigate anyway in case of error
     }
   };
