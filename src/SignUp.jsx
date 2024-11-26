@@ -74,7 +74,6 @@ const SignUp = () => {
   const handleCloseAlert = () => {
     setAlertVisible(false)
     setAlertMessage("")
-    navigate('/join-create-game')
   }
 
   const infoTitle = "About";
