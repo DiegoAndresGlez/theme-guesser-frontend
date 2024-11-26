@@ -269,17 +269,29 @@ const GameRoom = () => {
       navigate('/join-create-game')
     }
 
+    let reconnectTimer;
+
     socket.on('connect', () => {
-      console.log('Socket reconnected');
-      // Re-join room if we have player info
-      if (socket.connected && socket._reconnection) {
+      console.log('Socket connected');
+      clearTimeout(reconnectTimer);
+      
+      // Only rejoin if we were previously connected
+      if (socket._reconnection) {
         socket.emit('join-room', playerInfo.roomCode, playerInfo.username);
       }
     });
 
     socket.on('disconnect', (reason) => {
-      console.log('Socket disconnected:', reason);
-      // Socket.IO will automatically try to reconnect
+      console.log('Disconnected:', reason);
+      // Cloud Run specific handling
+      if (reason === 'transport close' || reason === 'ping timeout') {
+        reconnectTimer = setTimeout(() => {
+          if (!socket.connected) {
+            console.log('Forcing reconnection after Cloud Run disconnect');
+            socket.connect();
+          }
+        }, 1000);
+      }
     });
 
     if (!socket.connected) {
@@ -308,6 +320,8 @@ const GameRoom = () => {
 
     // Cleanup function
     return () => {
+      clearTimeout(reconnectTimer);
+
       // Unmount when disconnected
       if (currentPlayer && room?.accessCode) {
         socket.emit('leave-room', {
@@ -318,8 +332,9 @@ const GameRoom = () => {
 
       window.removeEventListener('beforeunload', handleBeforeUnload);
       
-      socket.off('connect')
-      socket.off('disconnect')
+      socket.off('connect');
+      socket.off('connect_error');
+      socket.off('disconnect');
       socket.off('room-joined');
       socket.off('room-updated');
       socket.off('host-changed');
