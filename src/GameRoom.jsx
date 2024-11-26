@@ -48,8 +48,7 @@ const GameRoom = () => {
 
     if (!playerInfo) {
       // TODO: Alert message
-      window.alert('Could not retrieve player info...')
-      navigate('/join-create-game')
+      window.alert('Error could not retrieve player info... Lost connection')
       return
     }
 
