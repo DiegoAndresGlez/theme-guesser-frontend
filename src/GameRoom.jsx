@@ -272,7 +272,7 @@ const GameRoom = () => {
     socket.on('connect', () => {
       console.log('Socket reconnected');
       // Re-join room if we have player info
-      if (playerInfo) {
+      if (playerInfo && !socket.connected) {
         socket.emit('join-room', playerInfo.roomCode, playerInfo.username);
       }
     });
@@ -285,8 +285,6 @@ const GameRoom = () => {
     if (!socket.connected) {
       socket.connect();
     }
-
-    socket.emit('join-room', playerInfo.roomCode, playerInfo.username)
 
     window.addEventListener('beforeunload', handleBeforeUnload);
 
