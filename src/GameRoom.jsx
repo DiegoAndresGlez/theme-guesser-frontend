@@ -65,8 +65,6 @@ const GameRoom = () => {
           accessCode: playerInfo.roomCode,
           username: playerInfo.username
         });
-        
-        socket.disconnect();
       }
     };
 
@@ -273,7 +271,22 @@ const GameRoom = () => {
       navigate('/join-create-game')
     }
 
-    socket.connect()
+    socket.on('connect', () => {
+      console.log('Socket reconnected');
+      // Re-join room if we have player info
+      if (playerInfo) {
+        socket.emit('join-room', playerInfo.roomCode, playerInfo.username);
+      }
+    });
+
+    socket.on('disconnect', (reason) => {
+      console.log('Socket disconnected:', reason);
+      // Socket.IO will automatically try to reconnect
+    });
+
+    if (!socket.connected) {
+      socket.connect();
+    }
 
     window.addEventListener('beforeunload', handleBeforeUnload);
 
